@@ -29,10 +29,11 @@ export default defineConfig({
             },
             ui: {
                 colors: {
-                    primary: 'green',
+                    primary: 'brown',
                     neutral: 'zinc'
                 }
             },
+            colorMode: false,
             autoImport: {
                 vueTemplate: true,
                 dirs: ["resources/js/composables", "resources/js/utils"],
