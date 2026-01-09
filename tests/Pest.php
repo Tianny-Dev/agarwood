@@ -11,9 +11,19 @@
 |
 */
 
+use Illuminate\Support\Sleep;
+use Illuminate\Support\Str;
+
 pest()->extend(Tests\TestCase::class)
- // ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
-    ->in('Feature');
+    ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
+    ->beforeEach(function (): void {
+        Str::createRandomStringsNormally();
+        Str::createUuidsNormally();
+        Sleep::fake();
+
+        $this->freezeTime();
+    })
+    ->in('Feature', 'Unit');
 
 /*
 |--------------------------------------------------------------------------
@@ -26,9 +36,7 @@ pest()->extend(Tests\TestCase::class)
 |
 */
 
-expect()->extend('toBeOne', function () {
-    return $this->toBe(1);
-});
+expect()->extend('toBeOne', fn () => $this->toBe(1));
 
 /*
 |--------------------------------------------------------------------------
