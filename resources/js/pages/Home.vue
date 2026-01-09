@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import GuestLayout from '@/layouts/GuestLayout.vue';
-import { login, register } from '@/routes';
-import { index as dashboard } from '@/routes/dashboard'
+import { login, register, dashboard } from '@/routes';
 import { Head, Link } from '@inertiajs/vue3';
 </script>
 
