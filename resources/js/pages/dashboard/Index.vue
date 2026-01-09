@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, router } from '@inertiajs/vue3';
+import { logout } from '@/routes';
+import { Head } from '@inertiajs/vue3';
 
-const handleLogout = () => {
-    router.flushAll();
-};
 </script>
 
 <template>
@@ -27,12 +25,7 @@ const handleLogout = () => {
                     <div class="p-6 text-gray-900">
                         Protected Routes here
                     </div>
-                    <button
-                        @click="handleLogout()"
-                        class="inline-block w-full bg-amber-950 text-white font-medium py-2 px-4 rounded hover:bg-amber-900 transition cursor-pointer"
-                    >
-                        Logout
-                    </button>
+                    <TextLink :href="logout()" as="button" class="mx-auto block text-sm font-medium text-primary"> Log out </TextLink>
                 </div>
             </div>
         </div>
