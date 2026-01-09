@@ -1,3 +1,9 @@
+<script setup lang="ts">
+import ApplicationLogo from '@/components/ApplicationLogo.vue';
+import { Link } from '@inertiajs/vue3';
+
+</script>
+
 <template>
   <div class="relative min-h-screen flex items-center justify-center px-4 py-12 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950">
     <!-- Background -->
@@ -8,14 +14,12 @@
 
     <div class="relative w-full max-w-md">
       <!-- Logo -->
-      <div class="text-center mb-8">
-        <div class="inline-flex items-center justify-center w-16 h-16 bg-primary-600 dark:bg-primary-500 rounded-2xl mb-4 shadow-lg shadow-primary-500/30">
-          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-          </svg>
+      <div class="text-center mb-2">
+        <div class="inline-flex items-center justify-center">
+            <Link href="/">
+                <ApplicationLogo class="h-20 w-auto" />
+            </Link>
         </div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">AGARWOOD</h1>
-        <!-- <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Secure authentication portal</p> -->
       </div>
 
       <!-- Card -->
