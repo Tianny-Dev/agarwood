@@ -81,4 +81,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasOne(Farmer::class);
     }
+
+    public function investor(): HasOne
+    {
+        return $this->hasOne(Investor::class);
+    }
 }
