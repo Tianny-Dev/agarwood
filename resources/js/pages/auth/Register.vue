@@ -31,6 +31,16 @@ const CivilStatusOptions = [
     { value: 'divorced', label: 'Divorced' },
 ];
 
+const IdTypeOptions = [
+    { value: 'passport', label: 'Passport' },
+    { value: 'drivers_license', label: 'Driver’s License' },
+    { value: 'national_id', label: 'National ID' },
+    { value: 'sss', label: 'SSS' },
+    { value: 'philhealth', label: 'PhilHealth' },
+    { value: 'tin', label: 'TIN' },
+    { value: 'voters_id', label: 'Voter’s ID' },
+];
+
 interface Field {
     name: string;
     label: string;
@@ -41,6 +51,8 @@ interface Field {
     trailing?: boolean;
     step: number;
     options?: { value: string; label: string }[];
+    accept?: string;
+    help?: string;
 }
 
 // Define fields with step information
@@ -52,6 +64,7 @@ const fields: Record<string, Field[]> = {
         { name: 'birthday', label: 'Birthday', type: 'date', required: true, autocomplete: 'bday', step: 2 },
         { name: 'gender', label: 'Gender', type: 'select', options: GenderOptions, required: true, step: 2 },
         { name: 'civil_status', label: 'Civil Status', type: 'select', options: CivilStatusOptions, required: true, step: 2 },
+
         { name: 'phone_number', label: 'Phone Number', type: 'tel', placeholder: '09123456789', required: true, autocomplete: 'tel', step: 3 },
         { name: 'email', label: 'Email', type: 'email', placeholder: 'juan@example.com', required: true, autocomplete: 'email', step: 3 },
         { name: 'address', label: 'Address', type: 'text', placeholder: '123 Street, City', required: true, autocomplete: 'street-address', step: 3 },
@@ -92,12 +105,34 @@ const fields: Record<string, Field[]> = {
         { name: 'first_name', label: 'First Name', type: 'text', placeholder: 'Juan', required: true, autocomplete: 'given-name', step: 2 },
         { name: 'middle_name', label: 'Middle Name', type: 'text', placeholder: 'Dela', required: false, autocomplete: 'additional-name', step: 2 },
         { name: 'last_name', label: 'Last Name', type: 'text', placeholder: 'Cruz', required: true, autocomplete: 'family-name', step: 2 },
+        { name: 'birthday', label: 'Birthday', type: 'date', required: true, autocomplete: 'bday', step: 2 },
+        { name: 'gender', label: 'Gender', type: 'select', options: GenderOptions, required: true, step: 2 },
+        { name: 'civil_status', label: 'Civil Status', type: 'select', options: CivilStatusOptions, required: true, step: 2 },
+
         { name: 'phone_number', label: 'Phone Number', type: 'tel', placeholder: '09123456789', required: true, autocomplete: 'tel', step: 3 },
         { name: 'email', label: 'Email', type: 'email', placeholder: 'juan@example.com', required: true, autocomplete: 'email', step: 3 },
-        { name: 'birthday', label: 'Birthday', type: 'date', required: true, autocomplete: 'bday', step: 3 },
-        { name: 'gender', label: 'Gender', type: 'select', options: GenderOptions, required: true, step: 3 },
-        { name: 'civil_status', label: 'Civil Status', type: 'select', options: CivilStatusOptions, required: true, step: 3 },
         { name: 'address', label: 'Address', type: 'text', placeholder: '123 Street, City', required: true, autocomplete: 'street-address', step: 3 },
+
+        { name: 'id_type', label: 'ID Type', type: 'select', options: IdTypeOptions, required: true, step: 4 },
+        {
+            name: 'id_front',
+            label: 'ID Front',
+            type: 'file',
+            accept: 'image/*,.pdf',
+            help: 'Upload a clear photo of the front of your ID',
+            required: true,
+            step: 4,
+        },
+        {
+            name: 'id_back',
+            label: 'ID Back',
+            type: 'file',
+            accept: 'image/*,.pdf',
+            help: 'Upload a clear photo of the back of your ID',
+            required: true,
+            step: 4,
+        },
+
         {
             name: 'password',
             label: 'Password',
@@ -106,7 +141,7 @@ const fields: Record<string, Field[]> = {
             required: true,
             trailing: true,
             autocomplete: 'new-password',
-            step: 4,
+            step: 5,
         },
         {
             name: 'password_confirmation',
@@ -116,7 +151,7 @@ const fields: Record<string, Field[]> = {
             required: true,
             trailing: true,
             autocomplete: 'new-password',
-            step: 4,
+            step: 5,
         },
     ],
 };
@@ -134,6 +169,7 @@ const stepItems: Record<string, { title: string; description?: string; icon?: st
         { title: 'Account Type', description: 'Choose your role', icon: 'i-lucide-user' },
         { title: 'Personal Info', description: 'Name details', icon: 'i-lucide-id-card' },
         { title: 'Contact & Details', description: 'Contact information', icon: 'i-lucide-phone' },
+        { title: 'ID Verification', description: 'Upload your ID', icon: 'i-lucide-file-check' },
         { title: 'Security', description: 'Password setup', icon: 'i-lucide-lock' },
     ],
 };
@@ -153,10 +189,23 @@ const currentStepFields = computed(() => {
 });
 
 // Initialize form with all fields for the current user type
+// function initializeForm(type: 'farmer' | 'investor') {
+//     const formData: Record<string, any> = {};
+//     fields[type].forEach((field) => {
+//         formData[field.name] = '';
+//     });
+//     return formData;
+// }
 function initializeForm(type: 'farmer' | 'investor') {
     const formData: Record<string, any> = {};
     fields[type].forEach((field) => {
-        formData[field.name] = '';
+        if (field.type === 'file') {
+            formData[field.name] = null;
+        } else if (field.type === 'checkbox') {
+            formData[field.name] = false;
+        } else {
+            formData[field.name] = '';
+        }
     });
     return formData;
 }
@@ -306,6 +355,15 @@ function submit() {
                                 <UCalendar v-model="form[field.name]" class="p-2" />
                             </template>
                         </UPopover>
+
+                        <!-- File upload fields -->
+                        <UFileUpload
+                            v-else-if="field.type === 'file'"
+                            v-model="form[field.name]"
+                            :accept="field.accept"
+                            :help="field.help"
+                            class="w-full object-contain"
+                        />
 
                         <!-- Textarea fields -->
                         <UTextarea
