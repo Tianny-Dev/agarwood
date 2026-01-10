@@ -4,6 +4,7 @@ namespace App\Http\Requests\Auth;
 
 use App\Enums\CivilStatusEnum;
 use App\Enums\Gender;
+use App\Enums\IdType;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules;
@@ -27,7 +28,7 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         $rules = [
-            'user_type' => ['required', 'in:farmer,buyer,admin'],
+            'user_type' => ['required', 'in:farmer,investor'],
             'first_name' => ['required', 'string', 'max:255'],
             'middle_name' => ['nullable', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
@@ -49,6 +50,15 @@ class RegisterRequest extends FormRequest
             ]);
         }
 
+        // Investor-specific rules
+        if ($this->input('user_type') === 'investor') {
+            $rules = array_merge($rules, [
+                'id_type' => ['required', new Enum(IdType::class)],
+                'id_front' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:10240'], 
+                'id_back' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:10240'], 
+            ]);
+        }
+
         return $rules;
     }
 
@@ -57,6 +67,8 @@ class RegisterRequest extends FormRequest
         return [
             'familiarity_tree_cultivation' => 'tree cultivation familiarity',
             'civil_status' => 'civil status',
+            'id_front' => 'ID front image',
+            'id_back' => 'ID back image',
         ];
     }
 
