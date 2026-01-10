@@ -26,7 +26,6 @@ class RegisterController extends Controller
      */
     public function store(RegisterRequest $request): RedirectResponse
     {
-        // dd($request->validated());
         $data = $request->validated();
 
         $user = User::create([
@@ -51,6 +50,30 @@ class RegisterController extends Controller
                 'farming_background' => $data['farming_background'] ?? null,
                 'years_of_farming' => $data['years_of_farming'] ?? null,
                 'familiarity_tree_cultivation' => $data['familiarity_tree_cultivation'] ?? false,
+            ]);
+        }
+
+        // Investor-only fields
+        if ($data['user_type'] === 'investor') {
+            $idFrontExtension = $request->file('id_front')->extension();
+            $idBackExtension = $request->file('id_back')->extension();
+            
+            $idFrontPath = $request->file('id_front')->storeAs(
+                'ids',
+                $user->id . '_front_' . time() . '.' . $idFrontExtension,
+                'public'
+            );
+            
+            $idBackPath = $request->file('id_back')->storeAs(
+                'ids',
+                $user->id . '_back_' . time() . '.' . $idBackExtension,
+                'public'
+            );
+
+            $user->investor()->create([
+                'id_type' => $data['id_type'],
+                'id_front' => $idFrontPath,
+                'id_back' => $idBackPath,
             ]);
         }
 
