@@ -26,11 +26,33 @@ class RegisterController extends Controller
      */
     public function store(RegisterRequest $request): RedirectResponse
     {
+        // dd($request->validated());
+        $data = $request->validated();
+
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'first_name' => $data['first_name'],
+            'middle_name' => $data['middle_name'] ?? null,
+            'last_name' => $data['last_name'],
+            'phone_number' => $data['phone_number'],
+            'email' => $data['email'],
+            'birthday' => $data['birthday'], 
+            'gender' => $data['gender'],
+            'civil_status' => $data['civil_status'],
+            'address' => $data['address'],
+            'password' => Hash::make($data['password']),
+            'user_type' => $data['user_type'],
+
+            
         ]);
+
+        // Farmer-only fields
+        if ($data['user_type'] === 'farmer') {
+            $user->farmer()->create([
+                'farming_background' => $data['farming_background'] ?? null,
+                'years_of_farming' => $data['years_of_farming'] ?? null,
+                'familiarity_tree_cultivation' => $data['familiarity_tree_cultivation'] ?? false,
+            ]);
+        }
 
         event(new Registered($user));
 
