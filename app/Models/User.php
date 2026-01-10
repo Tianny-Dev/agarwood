@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
+use App\Enums\CivilStatusEnum;
+use App\Enums\Gender;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -21,8 +24,15 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'first_name',
+        'middle_name',
+        'last_name',
+        'phone_number',
         'email',
+        'birthday',
+        'gender',
+        'civil_status',
+        'address',
         'password',
     ];
 
@@ -46,6 +56,9 @@ class User extends Authenticatable implements MustVerifyEmail
     protected function casts(): array
     {
         return [
+            'gender' => Gender::class,
+            'civil_status' => CivilStatusEnum::class,
+            'birthday' => 'date',
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
@@ -58,9 +71,14 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('name')
+            ->generateSlugsFrom('first_name')
             ->saveSlugsTo('username')
             ->usingSeparator('_')
             ->slugsShouldBeNoLongerThan(20);
+    }
+
+    public function farmer(): HasOne
+    {
+        return $this->hasOne(Farmer::class);
     }
 }
