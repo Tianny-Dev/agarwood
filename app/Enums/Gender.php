@@ -16,4 +16,15 @@ enum Gender: string
             self::OTHER => 'Other',
         };
     }
+
+    public static function options(): array
+    {
+        return array_map(
+            fn ($gender) => [
+                'value' => $gender->value,
+                'label' => $gender->label(),
+            ],
+            self::cases()
+        );
+    }
 }
