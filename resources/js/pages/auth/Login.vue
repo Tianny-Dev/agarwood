@@ -65,6 +65,10 @@ defineProps<{
                     </template>
                 </UFormField>
 
+                <UFormField name="remember" :error="form.errors.password">
+                    <UCheckbox label="Remember me" />
+                </UFormField>
+
                 <UButton :loading="form.processing" type="submit" block class="mt-4">Log in</UButton>
             </div>
         </form>
