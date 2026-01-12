@@ -16,6 +16,7 @@ return new class extends Migration
             $table->morphs('contractable'); // contractable_type + contractable_id
             $table->string('contract_number')->unique();
             $table->enum('status', ['unpaid', 'paid', 'approved', 'rejected'])->default('unpaid');
+            $table->string('payment_intent_id')->nullable()->unique();
             $table->string('file_path');
             $table->timestamps();
         });

@@ -11,6 +11,11 @@ class QrCode extends Model
     /** @use HasFactory<\Database\Factories\QrCodeFactory> */
     use HasFactory;
 
+    protected $fillable = [
+        'code',
+        'image_path',
+    ];
+
     public function qrable(): MorphTo 
     { 
         return $this->morphTo(); 

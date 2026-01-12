@@ -12,6 +12,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
+use App\Contracts\RequiresContract;
 
 class User extends Authenticatable
 {
@@ -91,5 +92,14 @@ class User extends Authenticatable
     public function qrCode(): MorphOne 
     { 
         return $this->morphOne(QrCode::class, 'qrable'); 
+    }
+
+    public function contractableEntities(): array
+    {
+        return array_filter([
+            $this->investor,
+            $this->partner ?? null,
+            $this->vendor ?? null,
+        ]);
     }
 }

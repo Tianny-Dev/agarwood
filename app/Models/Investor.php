@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Contracts\RequiresContract;
 use App\Enums\IdType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
-class Investor extends Model
+class Investor extends Model implements RequiresContract
 {
     /** @use HasFactory<\Database\Factories\InvestorFactory> */
     use HasFactory;
