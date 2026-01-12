@@ -11,13 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('investors', function (Blueprint $table) {
+        Schema::create('qr_codes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
-            $table->string('id_type');
-            $table->string('id_front');
-            $table->string('id_back');
-            $table->boolean('is_paid')->default(false);
+            $table->morphs('qrable'); // qrable_type + qrable_id
+            $table->string('code')->unique();
+            $table->string('image_path');
             $table->timestamps();
         });
     }
@@ -27,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('investors');
+        Schema::dropIfExists('qr_codes');
     }
 };

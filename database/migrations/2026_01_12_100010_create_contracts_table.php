@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('investors', function (Blueprint $table) {
+        Schema::create('contracts', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
-            $table->string('id_type');
-            $table->string('id_front');
-            $table->string('id_back');
-            $table->boolean('is_paid')->default(false);
+            $table->morphs('contractable'); // contractable_type + contractable_id
+            $table->string('contract_number')->unique();
+            $table->enum('status', ['unpaid', 'paid', 'approved', 'rejected'])->default('unpaid');
+            $table->string('file_path');
             $table->timestamps();
         });
     }
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('investors');
+        Schema::dropIfExists('contracts');
     }
 };
