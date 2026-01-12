@@ -7,6 +7,7 @@ use App\Enums\Gender;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -85,5 +86,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function investor(): HasOne
     {
         return $this->hasOne(Investor::class);
+    }
+
+    public function qrCode(): MorphOne 
+    { 
+        return $this->morphOne(QrCode::class, 'qrable'); 
     }
 }

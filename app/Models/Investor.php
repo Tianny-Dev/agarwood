@@ -6,6 +6,7 @@ use App\Enums\IdType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class Investor extends Model
 {
@@ -26,5 +27,15 @@ class Investor extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function contract(): MorphOne 
+    { 
+        return $this->morphOne(Contract::class, 'contractable'); 
+    }
+
+    public function qrCode(): MorphOne 
+    { 
+        return $this->morphOne(QrCode::class, 'qrable'); 
     }
 }
