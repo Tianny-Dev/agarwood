@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\CivilStatusEnum;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -24,7 +25,12 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        $roles = ['farmer', 'investor'];
+        $role = $this->faker->randomElement($roles);
+        $roleId = $this->generateRoleId($role);
+
         return [
+            'role_id' => $roleId,
             'first_name' => fake()->firstName(),
             'middle_name' => fake()->lastName(),
             'last_name' => fake()->lastName(),
@@ -39,6 +45,31 @@ class UserFactory extends Factory
             'password' => self::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
         ];
+    }
+
+    private static array $lastNumbers = [
+        'admin' => 0,
+        'farmer' => 0,
+        'investor' => 0,
+    ];
+    /**
+     * Generate a unique role-based ID.
+     */
+    private function generateRoleId($role)
+    {
+        switch ($role) {
+            case 'admin': $roleCode = 1; break;
+            case 'farmer': $roleCode = 2; break;
+            default: $roleCode = 3; break;
+        }
+
+        $year = date('y');
+
+        $lastNumber = self::$lastNumbers[$role] ?? 0;
+        $newNumber = $lastNumber + 1;
+        self::$lastNumbers[$role] = $newNumber;
+
+        return "{$roleCode}-{$year}-" . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
     }
 
     /**
