@@ -13,7 +13,7 @@ use Illuminate\Notifications\Notifiable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, HasSlug, Notifiable;
