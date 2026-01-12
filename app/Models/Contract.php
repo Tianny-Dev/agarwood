@@ -11,6 +11,12 @@ class Contract extends Model
     /** @use HasFactory<\Database\Factories\ContractFactory> */
     use HasFactory;
 
+    protected $fillable = [
+        'contract_number',
+        'status',
+        'file_path',
+    ];
+
     public function contractable(): MorphTo 
     { 
         return $this->morphTo(); 

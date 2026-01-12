@@ -4,12 +4,17 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Mail\ContractMail;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -69,24 +74,49 @@ class RegisterController extends Controller
             }
 
             if ($data['user_type'] === 'investor') {
-                $idFrontPath = $request->file('id_front')->storeAs(
-                    'ids',
-                    $user->id . '_front_' . time() . '.' . $request->file('id_front')->extension(),
-                    'public'
-                );
 
-                $idBackPath = $request->file('id_back')->storeAs(
-                    'ids',
-                    $user->id . '_back_' . time() . '.' . $request->file('id_back')->extension(),
-                    'public'
-                );
+            $idFrontPath = $request->file('id_front')->storeAs(
+                'ids',
+                $user->id . '_front_' . time() . '.' . $request->file('id_front')->extension(),
+                'public'
+            );
 
-                $user->investor()->create([
-                    'id_type' => $data['id_type'],
-                    'id_front' => $idFrontPath,
-                    'id_back' => $idBackPath,
-                ]);
-            }
+            $idBackPath = $request->file('id_back')->storeAs(
+                'ids',
+                $user->id . '_back_' . time() . '.' . $request->file('id_back')->extension(),
+                'public'
+            );
+
+            $investor = $user->investor()->create([
+                'id_type' => $data['id_type'],
+                'id_front' => $idFrontPath,
+                'id_back' => $idBackPath,
+                'is_paid' => false,
+            ]);
+
+            $contractNumber = 'AGR-' . strtoupper(Str::random(8));
+
+            $pdf = Pdf::loadView('contracts.investor', [
+                'user' => $user,
+                'investor' => $investor,
+                'contract_number' => $contractNumber,
+                'qr' => null, 
+            ]);
+
+            Storage::disk('public')->makeDirectory('contracts');
+
+            $pdfPath = 'contracts/' . $contractNumber . '.pdf';
+
+            Storage::disk('public')->put($pdfPath, $pdf->output());
+
+            $contract = $investor->contract()->create([
+                'contract_number' => $contractNumber,
+                'status' => 'unpaid',
+                'file_path' => $pdfPath,
+            ]);
+
+            Mail::to($user->email)->send(new ContractMail($contract));
+        }
 
             return $user;
         });
