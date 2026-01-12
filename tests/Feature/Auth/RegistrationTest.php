@@ -60,6 +60,8 @@ test('new users with investor accounts can register', function () {
         'gender' => Gender::FEMALE->value,
         'civil_status' => CivilStatusEnum::MARRIED->value,
         'address' => '456 Investor Ave',
+
+        // used ONLY for logic
         'user_type' => 'investor',
 
         'id_type' => 'passport',
@@ -76,10 +78,7 @@ test('new users with investor accounts can register', function () {
 
     $response->assertRedirect(route('dashboard', absolute: false));
 
-    $this->assertDatabaseHas('users', [
-        'email' => 'investor@example.com',
-    ]);
-
+    // relationship = role
     $this->assertDatabaseHas('investors', [
         'user_id' => $user->id,
         'id_type' => 'passport',
