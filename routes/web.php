@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::middleware(['auth', 'verified'])->prefix('contract')->name('contract.')->group(function () {
-    Route::get('pending', [ContractController::class, 'pending'])->name('pending');
+    Route::get('pending', [ContractController::class, 'pending'])->name('pending')->middleware('redirect.if.contract.paid');
 
     Route::post('/{contract}/pay', [PaymentController::class, 'pay'])->name('pay');
 
