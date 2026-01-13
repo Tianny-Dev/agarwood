@@ -10,7 +10,7 @@ class DashboardResolver
     {
         return match (true) {
             $user->investor !== null => route('investor.dashboard'),
-            // $user->farmer !== null   => route('farmer.dashboard'),
+            $user->farmer !== null   => route('farmer.dashboard'),
             // $user->isAdmin()         => route('admin.dashboard'),
             default                  => route('home'),
         };
