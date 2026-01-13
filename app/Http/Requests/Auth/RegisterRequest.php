@@ -28,7 +28,7 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         $rules = [
-            'user_type' => ['required', 'in:farmer,investor'],
+            'user_type' => ['required', 'in:farmer,investor,partner'],
             'first_name' => ['required', 'string', 'max:255'],
             'middle_name' => ['nullable', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
@@ -50,12 +50,12 @@ class RegisterRequest extends FormRequest
             ]);
         }
 
-        // Investor-specific rules
-        if ($this->input('user_type') === 'investor') {
+        // Investor & Partner-specific rules
+        if (in_array($this->input('user_type'), ['investor', 'partner'], true)) {
             $rules = array_merge($rules, [
                 'id_type' => ['required', new Enum(IdType::class)],
-                'id_front' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:10240'], 
-                'id_back' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:10240'], 
+                'id_front' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:10240'],
+                'id_back'  => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:10240'],
             ]);
         }
 

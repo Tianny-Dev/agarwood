@@ -39,6 +39,7 @@ class RegisterController extends Controller
             $roleCode = match($data['user_type'] ?? '') {
                 'farmer' => 2,
                 'investor' => 3,
+                'partner' => 4,
                 default => 1,
             };
 
@@ -75,48 +76,93 @@ class RegisterController extends Controller
 
             if ($data['user_type'] === 'investor') {
 
-            $idFrontPath = $request->file('id_front')->storeAs(
-                'ids',
-                $user->id . '_front_' . time() . '.' . $request->file('id_front')->extension(),
-                'public'
-            );
+                $idFrontPath = $request->file('id_front')->storeAs(
+                    'ids',
+                    $user->id . '_front_' . time() . '.' . $request->file('id_front')->extension(),
+                    'public'
+                );
 
-            $idBackPath = $request->file('id_back')->storeAs(
-                'ids',
-                $user->id . '_back_' . time() . '.' . $request->file('id_back')->extension(),
-                'public'
-            );
+                $idBackPath = $request->file('id_back')->storeAs(
+                    'ids',
+                    $user->id . '_back_' . time() . '.' . $request->file('id_back')->extension(),
+                    'public'
+                );
 
-            $investor = $user->investor()->create([
-                'id_type' => $data['id_type'],
-                'id_front' => $idFrontPath,
-                'id_back' => $idBackPath,
-                'is_paid' => false,
-            ]);
+                $investor = $user->investor()->create([
+                    'id_type' => $data['id_type'],
+                    'id_front' => $idFrontPath,
+                    'id_back' => $idBackPath,
+                    'is_paid' => false,
+                ]);
 
-            $contractNumber = 'AGR-' . strtoupper(Str::random(8));
+                $contractNumber = 'AGR-' . strtoupper(Str::random(8));
 
-            $pdf = Pdf::loadView('contracts.investor', [
-                'user' => $user,
-                'investor' => $investor,
-                'contract_number' => $contractNumber,
-                'qr' => null, 
-            ]);
+                $pdf = Pdf::loadView('contracts.investor', [
+                    'user' => $user,
+                    'investor' => $investor,
+                    'contract_number' => $contractNumber,
+                    'qr' => null, 
+                ]);
 
-            Storage::disk('public')->makeDirectory('contracts');
+                Storage::disk('public')->makeDirectory('contracts');
 
-            $pdfPath = 'contracts/' . $contractNumber . '.pdf';
+                $pdfPath = 'contracts/' . $contractNumber . '.pdf';
 
-            Storage::disk('public')->put($pdfPath, $pdf->output());
+                Storage::disk('public')->put($pdfPath, $pdf->output());
 
-            $contract = $investor->contract()->create([
-                'contract_number' => $contractNumber,
-                'status' => 'unpaid',
-                'file_path' => $pdfPath,
-            ]);
+                $contract = $investor->contract()->create([
+                    'contract_number' => $contractNumber,
+                    'status' => 'unpaid',
+                    'file_path' => $pdfPath,
+                ]);
 
-            Mail::to($user->email)->send(new ContractMail($contract));
-        }
+                Mail::to($user->email)->send(new ContractMail($contract));
+            }
+
+            if ($data['user_type'] === 'partner') {
+
+                $idFrontPath = $request->file('id_front')->storeAs(
+                    'ids',
+                    $user->id . '_front_' . time() . '.' . $request->file('id_front')->extension(),
+                    'public'
+                );
+
+                $idBackPath = $request->file('id_back')->storeAs(
+                    'ids',
+                    $user->id . '_back_' . time() . '.' . $request->file('id_back')->extension(),
+                    'public'
+                );
+
+                $partner = $user->partner()->create([
+                    'id_type' => $data['id_type'],
+                    'id_front' => $idFrontPath,
+                    'id_back' => $idBackPath,
+                    'is_paid' => false,
+                ]);
+
+                $contractNumber = 'AGR-' . strtoupper(Str::random(8));
+
+                $pdf = Pdf::loadView('contracts.partner', [
+                    'user' => $user,
+                    'partner' => $partner,
+                    'contract_number' => $contractNumber,
+                    'qr' => null, 
+                ]);
+
+                Storage::disk('public')->makeDirectory('contracts');
+
+                $pdfPath = 'contracts/' . $contractNumber . '.pdf';
+
+                Storage::disk('public')->put($pdfPath, $pdf->output());
+
+                $contract = $partner->contract()->create([
+                    'contract_number' => $contractNumber,
+                    'status' => 'unpaid',
+                    'file_path' => $pdfPath,
+                ]);
+
+                Mail::to($user->email)->send(new ContractMail($contract));
+            }
 
             return $user;
         });

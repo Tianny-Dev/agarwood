@@ -31,6 +31,28 @@ const passwordFields = [
   { name: 'password_confirmation', label: 'Confirm Password', type: 'password', placeholder: 'Confirm Password', required: true, trailing: true, autocomplete: 'new-password', step: 5 },
 ];
 
+const idVerificationFields = [
+  { name: 'id_type', label: 'ID Type', type: 'select', options: [
+    { value: 'passport', label: 'Passport' },
+    { value: 'drivers_license', label: "Driver's License" },
+    { value: 'national_id', label: 'National ID' },
+    { value: 'sss', label: 'SSS' },
+    { value: 'philhealth', label: 'PhilHealth' },
+    { value: 'tin', label: 'TIN' },
+    { value: 'voters_id', label: "Voter's ID" },
+  ], required: true, step: 4 },
+  { name: 'id_front', label: 'ID Front', type: 'file', accept: 'image/*,.pdf', help: 'Upload a clear photo of the front of your ID', required: true, step: 4 },
+  { name: 'id_back', label: 'ID Back', type: 'file', accept: 'image/*,.pdf', help: 'Upload a clear photo of the back of your ID', required: true, step: 4 },
+];
+
+const idVerificationSteps = [
+  { title: 'Account Type', description: 'Choose your role', icon: 'i-lucide-user' },
+  { title: 'Personal Info', description: 'Name details', icon: 'i-lucide-id-card' },
+  { title: 'Contact & Details', description: 'Contact information', icon: 'i-lucide-phone' },
+  { title: 'ID Verification', description: 'Upload your ID', icon: 'i-lucide-file-check' },
+  { title: 'Security', description: 'Password setup', icon: 'i-lucide-lock' },
+];
+
 export const registrationConfig: RegistrationConfig = {
   farmer: {
     steps: [
@@ -49,28 +71,23 @@ export const registrationConfig: RegistrationConfig = {
       ...passwordFields,
     ],
   },
+
   investor: {
-    steps: [
-      { title: 'Account Type', description: 'Choose your role', icon: 'i-lucide-user' },
-      { title: 'Personal Info', description: 'Name details', icon: 'i-lucide-id-card' },
-      { title: 'Contact & Details', description: 'Contact information', icon: 'i-lucide-phone' },
-      { title: 'ID Verification', description: 'Upload your ID', icon: 'i-lucide-file-check' },
-      { title: 'Security', description: 'Password setup', icon: 'i-lucide-lock' },
-    ],
+    steps: idVerificationSteps,
     fields: [
       ...personalInfoFields,
       ...contactFields,
-      { name: 'id_type', label: 'ID Type', type: 'select', options: [
-        { value: 'passport', label: 'Passport' },
-        { value: 'drivers_license', label: "Driver's License" },
-        { value: 'national_id', label: 'National ID' },
-        { value: 'sss', label: 'SSS' },
-        { value: 'philhealth', label: 'PhilHealth' },
-        { value: 'tin', label: 'TIN' },
-        { value: 'voters_id', label: "Voter's ID" },
-      ], required: true, step: 4 },
-      { name: 'id_front', label: 'ID Front', type: 'file', accept: 'image/*,.pdf', help: 'Upload a clear photo of the front of your ID', required: true, step: 4 },
-      { name: 'id_back', label: 'ID Back', type: 'file', accept: 'image/*,.pdf', help: 'Upload a clear photo of the back of your ID', required: true, step: 4 },
+      ...idVerificationFields,
+      ...passwordFields,
+    ],
+  },
+  
+  partner: {
+    steps: idVerificationSteps,
+    fields: [
+      ...personalInfoFields,
+      ...contactFields,
+      ...idVerificationFields,
       ...passwordFields,
     ],
   },

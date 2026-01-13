@@ -10,6 +10,7 @@ import { Head } from '@inertiajs/vue3';
 const userTypeOptions = [
     { value: 'farmer', label: 'Farmer' },
     { value: 'investor', label: 'Investor' },
+    { value: 'partner', label: 'Partner' },
 ];
 
 const {

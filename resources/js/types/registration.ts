@@ -1,4 +1,4 @@
-export type UserType = 'farmer' | 'investor';
+export type UserType = 'farmer' | 'investor' | 'partner';
 
 export interface Field {
   name: string;
@@ -28,4 +28,5 @@ export interface UserTypeConfig {
 export interface RegistrationConfig {
   farmer: UserTypeConfig;
   investor: UserTypeConfig;
+  partner: UserTypeConfig;
 }
