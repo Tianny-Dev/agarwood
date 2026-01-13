@@ -11,6 +11,7 @@ class DashboardResolver
         return match (true) {
             $user->investor !== null => route('investor.dashboard'),
             $user->farmer !== null   => route('farmer.dashboard'),
+            $user->partner !== null   => route('partner.dashboard'),
             // $user->isAdmin()         => route('admin.dashboard'),
             default                  => route('home'),
         };
