@@ -14,7 +14,7 @@ class Contract extends Model
     protected $fillable = [
         'contract_number',
         'status',
-        'payment_intent_id',
+        'checkout_session_id',
         'file_path',
     ];
 

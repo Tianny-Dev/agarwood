@@ -19,10 +19,12 @@ class Investor extends Model implements RequiresContract
         'id_type',
         'id_front',
         'id_back',
+        'is_paid'
     ];
 
     protected $casts = [
         'id_type' => IdType::class,
+        'is_paid' => 'boolean',
     ];
 
     public function user(): BelongsTo
