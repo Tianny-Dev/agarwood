@@ -9,13 +9,14 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified'])->prefix('contract')->name('contract.')->group(function () {
+    Route::get('pending', [ContractController::class, 'pending'])->name('pending');
 
-// Contract-related routes
-Route::prefix('contract')->name('contract.')->group(function () {
-    Route::get('pending', [ContractController::class, 'pending'])
-        ->name('pending');
-    });
+    Route::post('/{contract}/pay', [PaymentController::class, 'pay'])->name('pay');
+
+    Route::get('/payment/success/{contract}', [PaymentController::class, 'handlePaid'])->name('payment.success');
+    Route::get('/payment/cancel/{contract}', [PaymentController::class, 'handleCancelledOrExpired'])->name('payment.cancel');
+    Route::get('/payment/expired/{contract}', [PaymentController::class, 'handleCancelledOrExpired'])->name('payment.expired');
 });
 
 Route::get('/dashboard', function (Request $request, DashboardResolver $resolver) {
