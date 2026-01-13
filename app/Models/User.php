@@ -89,6 +89,11 @@ class User extends Authenticatable
         return $this->hasOne(Investor::class);
     }
 
+    public function partner(): HasOne
+    {
+        return $this->hasOne(Partner::class);
+    }
+
     public function qrCode(): MorphOne 
     { 
         return $this->morphOne(QrCode::class, 'qrable'); 
@@ -99,7 +104,7 @@ class User extends Authenticatable
         return array_filter([
             $this->investor,
             $this->partner ?? null,
-            $this->vendor ?? null,
+            $this->farmer ?? null,
         ]);
     }
 }
