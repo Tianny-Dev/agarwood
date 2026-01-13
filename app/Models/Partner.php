@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Contracts\RequiresContract;
+use App\Enums\IdType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
-class Partner extends Model
+class Partner extends Model implements RequiresContract
 {
     /** @use HasFactory<\Database\Factories\PartnerFactory> */
     use HasFactory;
