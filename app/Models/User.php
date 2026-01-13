@@ -107,4 +107,10 @@ class User extends Authenticatable
             $this->farmer ?? null,
         ]);
     }
+
+    public function activeContract(): ?Contract
+    {
+        return $this->investor?->contract
+            ?? $this->partner?->contract;
+    }
 }

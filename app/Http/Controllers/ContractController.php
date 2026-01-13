@@ -10,18 +10,14 @@ class ContractController extends Controller
 {
     public function pending(Request $request)
     {
-        $user = $request->user();
-
-        $contract = $user->investor?->contract
-            ? [
-                'id' => $user->investor->contract->id,
-                'contract_number' => $user->investor->contract->contract_number,
-                'status' => $user->investor->contract->status,
-            ]
-            : null;
+        $contract = $request->user()->activeContract();
 
         return Inertia::render('contract/Pending', [
-            'contract' => $contract,
+            'contract' => $contract ? [
+                'id' => $contract->id,
+                'contract_number' => $contract->contract_number,
+                'status' => $contract->status,
+            ] : null,
         ]);
     }
 }

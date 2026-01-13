@@ -18,11 +18,15 @@ class ContractPaymentService
         DB::transaction(function () use ($contract) {
             $contractable = $contract->contractable;
 
-            // Update contract and investor
-            $contract->update(['status' => 'paid', 'checkout_session_id' => null]);
+            // Update contract + role
+            $contract->update([
+                'status' => 'paid',
+                'checkout_session_id' => null,
+            ]);
+
             $contractable->update(['is_paid' => true]);
 
-            // Generate QR code
+            // QR
             $qrPath = "qrcodes/{$contract->id}.png";
             $code = Str::uuid();
 
@@ -31,32 +35,45 @@ class ContractPaymentService
                 QrCode::size(200)->generate($contract->contract_number)
             );
 
-            // Update or create QR record
             $qr = $contractable->qrcode()->updateOrCreate([], [
                 'image_path' => $qrPath,
                 'code' => $code,
             ]);
 
-            // Generate PDF with QR code
-            $pdf = Pdf::loadView('contracts.investor', [
+            // Resolve view
+            $view = match (true) {
+                $contractable instanceof \App\Models\Investor => 'contracts.investor',
+                $contractable instanceof \App\Models\Partner  => 'contracts.partner',
+                default => throw new \LogicException('Unsupported contractable type'),
+            };
+
+            // Build view data
+            $viewData = [
                 'user' => $contractable->user,
-                'investor' => $contractable,
                 'contract_number' => $contract->contract_number,
                 'qr' => $qr,
                 'status' => 'paid',
-            ]);
+            ];
 
-            // Define PDF path
+            if ($contractable instanceof \App\Models\Investor) {
+                $viewData['investor'] = $contractable;
+            }
+
+            if ($contractable instanceof \App\Models\Partner) {
+                $viewData['partner'] = $contractable;
+            }
+
+            // Generate PDF
+            $pdf = Pdf::loadView($view, $viewData);
+
             $pdfPath = "contracts/{$contract->contract_number}.pdf";
 
-            // Update contract file_path
             $contract->update(['file_path' => $pdfPath]);
 
-            // Save PDF to storage
             Storage::disk('public')->put($pdfPath, $pdf->output());
         });
 
-        // Send email after transaction
+        // Email AFTER commit
         Mail::to($contract->contractable->user->email)
             ->send(new ContractMail($contract));
     }
