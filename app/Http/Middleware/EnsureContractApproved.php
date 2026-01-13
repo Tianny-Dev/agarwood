@@ -23,7 +23,7 @@ class EnsureContractApproved
                 $contract = $entity->contract;
 
                 // Block if no contract or not approved
-                if (!$contract || $contract->status !== 'approved') {
+                if (!$contract || $contract->status !== 'paid') {
                     return redirect()->route('contract.pending');
                 }
             }
