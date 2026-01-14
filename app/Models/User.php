@@ -81,6 +81,11 @@ class User extends Authenticatable
             ->slugsShouldBeNoLongerThan(20);
     }
 
+    public function agent(): HasOne
+    {
+        return $this->hasOne(Agent::class);
+    }
+
     public function farmer(): HasOne
     {
         return $this->hasOne(Farmer::class);
