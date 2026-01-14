@@ -8,6 +8,7 @@ use App\Services\Contract\ContractRegistrationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class RegisterUserService
@@ -15,6 +16,10 @@ class RegisterUserService
     public function register(Request $request): User
     {
         $data = $request->validated();
+
+        if (($data['user_type'] ?? null) === 'agent' && !isset($data['farmer_id'])) {
+            $data['farmer_id'] = $request->user()->farmer->id ?? null;
+        }
 
         return DB::transaction(function () use ($data, $request) {
 
@@ -29,6 +34,7 @@ class RegisterUserService
     protected function createUser(array $data): User
     {
         $roleCode = match ($data['user_type']) {
+            'agent' => 2,
             'farmer' => 3,
             'investor' => 4,
             'partner' => 5,
@@ -65,6 +71,13 @@ class RegisterUserService
     {
         switch ($data['user_type']) {
 
+            case 'agent':
+                $user->agent()->create([
+                    'agent_code' => $this->generateUniqueAgentCode(),
+                    'farmer_id' => $data['farmer_id'] ?? null,
+                ]);
+                break;
+
             case 'farmer':
                 $user->farmer()->create([
                     'farming_background' => $data['farming_background'] ?? null,
@@ -96,5 +109,19 @@ class RegisterUserService
             default:
                 throw new \InvalidArgumentException("Invalid user type: {$data['user_type']}");
         }
+    }
+
+    /**
+     * Generate a unique agent code
+     */
+    protected function generateUniqueAgentCode(): string
+    {
+        do {
+            $code = 'AGT-' 
+            . strtoupper(Str::random(3)) 
+            . str_pad(random_int(0, 99999), 5, '0', STR_PAD_LEFT);
+        } while (Agent::query()->where('agent_code', $code)->exists());
+
+        return $code;
     }
 }
