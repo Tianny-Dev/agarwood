@@ -29,10 +29,10 @@ class RegisterUserService
     protected function createUser(array $data): User
     {
         $roleCode = match ($data['user_type']) {
-            'farmer' => 2,
-            'investor' => 3,
-            'partner' => 4,
-            default => 1,
+            'farmer' => 3,
+            'investor' => 4,
+            'partner' => 5,
+            default => 3,
         };
 
         $year = date('y');

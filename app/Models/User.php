@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\CivilStatusEnum;
 use App\Enums\Gender;
+use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -112,5 +113,21 @@ class User extends Authenticatable
     {
         return $this->investor?->contract
             ?? $this->partner?->contract;
+    }
+
+    /**
+     * Reset role counters in the factory
+     */
+    public static function resetRoleCounters(): void
+    {
+        UserFactory::resetCounters();
+    }
+
+    /**
+     * Set a specific role counter in the factory
+     */
+    public static function setRoleCounter(string $role, int $count): void
+    {
+        UserFactory::setCounter($role, $count);
     }
 }

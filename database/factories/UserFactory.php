@@ -18,6 +18,14 @@ class UserFactory extends Factory
      */
     protected static ?string $password;
 
+    private static array $lastNumbers = [
+        'super_admin' => 0,
+        'agent' => 0,
+        'farmer' => 0,
+        'investor' => 0,
+        'partner' => 0,
+    ];
+
     /**
      * Define the model's default state.
      *
@@ -25,12 +33,8 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
-        $roles = ['farmer', 'investor'];
-        $role = $this->faker->randomElement($roles);
-        $roleId = $this->generateRoleId($role);
-
         return [
-            'role_id' => $roleId,
+            'role_id' => null,
             'first_name' => fake()->firstName(),
             'middle_name' => fake()->lastName(),
             'last_name' => fake()->lastName(),
@@ -47,19 +51,40 @@ class UserFactory extends Factory
         ];
     }
 
-    private static array $lastNumbers = [
-        'admin' => 0,
-        'farmer' => 0,
-        'investor' => 0,
-    ];
+    /**
+     * Configure the factory to set role_id based on relationships.
+     */
+    public function configure(): static
+    {
+        return $this->afterMaking(function (User $user) {
+            if ($user->role_id) {
+                return;
+            }
+
+            $role = $this->determineRoleFromRelationships();
+            $user->role_id = $this->generateRoleId($role);
+        });
+    }
+
+    /**
+     * Determine role from the relationships being created
+     */
+    private function determineRoleFromRelationships(): string
+    {
+        return 'farmer';
+    }
+
     /**
      * Generate a unique role-based ID.
      */
     private function generateRoleId($role)
     {
         switch ($role) {
-            case 'admin': $roleCode = 1; break;
-            case 'farmer': $roleCode = 2; break;
+            case 'super_admin': $roleCode = 1; break;
+            case 'agent': $roleCode = 2; break;
+            case 'farmer': $roleCode = 3; break;
+            case 'investor': $roleCode = 4; break;
+            case 'partner': $roleCode = 5; break;
             default: $roleCode = 3; break;
         }
 
@@ -73,6 +98,30 @@ class UserFactory extends Factory
     }
 
     /**
+     * Reset all role counters to 0
+     */
+    public static function resetCounters(): void
+    {
+        self::$lastNumbers = [
+            'super_admin' => 0,
+            'agent' => 0,
+            'farmer' => 0,
+            'investor' => 0,
+            'partner' => 0,
+        ];
+    }
+
+    /**
+     * Set a specific role counter
+     */
+    public static function setCounter(string $role, int $count): void
+    {
+        if (isset(self::$lastNumbers[$role])) {
+            self::$lastNumbers[$role] = $count;
+        }
+    }
+
+    /**
      * Indicate that the model's email address should be unverified.
      */
     public function unverified(): static
@@ -80,6 +129,54 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
+    }
+
+    /**
+     * Create a farmer user
+     */
+    public function farmer(): static
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'role_id' => $this->generateRoleId('farmer'),
+            ];
+        });
+    }
+
+    /**
+     * Create an investor user
+     */
+    public function investor(): static
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'role_id' => $this->generateRoleId('investor'),
+            ];
+        });
+    }
+
+    /**
+     * Create a partner user
+     */
+    public function partner(): static
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'role_id' => $this->generateRoleId('partner'),
+            ];
+        });
+    }
+
+    /**
+     * Create an agent user
+     */
+    public function agent(): static
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'role_id' => $this->generateRoleId('agent'),
+            ];
+        });
     }
 
     /**
