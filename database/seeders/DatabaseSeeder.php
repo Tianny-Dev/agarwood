@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Enums\CivilStatusEnum;
 use App\Models\Agent;
+use App\Models\Contract;
 use App\Models\Farmer;
 use App\Models\Investor;
 use App\Models\Partner;
@@ -21,6 +22,7 @@ class DatabaseSeeder extends Seeder
         $this->call(RolesAndPermissionsSeeder::class);
 
         User::resetRoleCounters();
+        Contract::resetCounter();
 
         // ------------------------------
         // 1. Create a Super-Admin (Test Account)
@@ -101,11 +103,16 @@ class DatabaseSeeder extends Seeder
         ]);
         $investorUser->assignRole('investor');
 
-        Investor::factory()->create([
+        $testInvestor = Investor::factory()->create([
             'user_id' => $investorUser->id,
             'agent_id' => $testAgent->id,
             'id_front' => 'front_id.png',
             'id_back' => 'back_id.png',
+        ]);
+
+       Contract::factory()->approved()->create([
+            'contractable_type' => Investor::class,
+            'contractable_id' => $testInvestor->id,
         ]);
 
         User::setRoleCounter('investor', 1);
@@ -125,9 +132,14 @@ class DatabaseSeeder extends Seeder
         ]);
         $partnerUser->assignRole('partner');
 
-        Partner::factory()->create([
+        $testPartner = Partner::factory()->create([
             'user_id' => $partnerUser->id,
             'agent_id' => $testAgent->id,
+        ]);
+
+        Contract::factory()->paid()->create([
+            'contractable_type' => Partner::class,
+            'contractable_id' => $testPartner->id,
         ]);
 
         User::setRoleCounter('partner', 1);
@@ -153,31 +165,39 @@ class DatabaseSeeder extends Seeder
             ->create();
 
         // ------------------------------
-        // 8. Random Investors with Agent assignment
+        // 8. Random Investors with Agent assignment and Contracts
         // ------------------------------
         User::factory()
             ->count(5)
             ->investor()
-            ->has(Investor::factory()->state(function () use ($allAgents) {
-                return [
-                    'agent_id' => $allAgents->random()->id,
-                    'id_front' => 'front_id.png',
-                    'id_back' => 'back_id.png',
-                ];
-            }))
+            ->has(
+                Investor::factory()
+                    ->state(function () use ($allAgents) {
+                        return [
+                            'agent_id' => $allAgents->random()->id,
+                            'id_front' => 'front_id.png',
+                            'id_back' => 'back_id.png',
+                        ];
+                    })
+                    ->has(Contract::factory()->count(rand(1, 3)), 'contract')
+            )
             ->create();
 
         // ------------------------------
-        // 9. Random Partners with Agent assignment
+        // 9. Random Partners with Agent assignment and Contracts
         // ------------------------------
         User::factory()
             ->count(5)
             ->partner()
-            ->has(Partner::factory()->state(function () use ($allAgents) {
-                return [
-                    'agent_id' => $allAgents->random()->id,
-                ];
-            }))
+            ->has(
+                Partner::factory()
+                    ->state(function () use ($allAgents) {
+                        return [
+                            'agent_id' => $allAgents->random()->id,
+                        ];
+                    })
+                    ->has(Contract::factory()->count(rand(1, 2)), 'contract')
+            )
             ->create();
     }
 }

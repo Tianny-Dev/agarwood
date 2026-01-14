@@ -10,6 +10,8 @@ use Illuminate\Support\Str;
  */
 class ContractFactory extends Factory
 {
+    private static int $contractNumber = 0;
+    
     /**
      * Define the model's default state.
      *
@@ -18,11 +20,10 @@ class ContractFactory extends Factory
     public function definition(): array
     {
         return [
-            'contractable_type' => null, // set manually with ->forModel()
-            'contractable_id' => null,
-            'contract_number' => 'AGR-' . strtoupper(Str::random(8)),
+            'contract_number' => $this->generateContractNumber(),
             'status' => $this->faker->randomElement(['unpaid', 'paid', 'approved', 'rejected']),
-            'file_path' => 'contracts/' . Str::uuid() . '.pdf',
+            'checkout_session_id' => $this->faker->boolean(50) ? $this->faker->uuid() : null,
+            'file_path' => 'contracts/' . $this->faker->uuid() . '.pdf',
         ];
     }
 
@@ -40,22 +41,71 @@ class ContractFactory extends Factory
     }
 
     /**
-     * Convenience state for unpaid contracts.
+     * Generate a unique contract number
      */
-    public function unpaid()
+    private function generateContractNumber(): string
     {
-        return $this->state([
+        self::$contractNumber++;
+        $year = date('Y');
+        return "CT-{$year}-" . str_pad(self::$contractNumber, 6, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Reset contract number counter
+     */
+    public static function resetCounter(): void
+    {
+        self::$contractNumber = 0;
+    }
+
+    /**
+     * Set contract number counter
+     */
+    public static function setCounter(int $count): void
+    {
+        self::$contractNumber = $count;
+    }
+
+    /**
+     * Mark contract as unpaid
+     */
+    public function unpaid(): static
+    {
+        return $this->state(fn (array $attributes) => [
             'status' => 'unpaid',
+            'checkout_session_id' => null,
         ]);
     }
 
     /**
-     * Convenience state for approved contracts.
+     * Mark contract as paid
      */
-    public function approved()
+    public function paid(): static
     {
-        return $this->state([
+        return $this->state(fn (array $attributes) => [
+            'status' => 'paid',
+            'checkout_session_id' => $this->faker->uuid(),
+        ]);
+    }
+
+    /**
+     * Mark contract as approved
+     */
+    public function approved(): static
+    {
+        return $this->state(fn (array $attributes) => [
             'status' => 'approved',
+            'checkout_session_id' => $this->faker->uuid(),
+        ]);
+    }
+
+    /**
+     * Mark contract as rejected
+     */
+    public function rejected(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => 'rejected',
         ]);
     }
 }
