@@ -26,7 +26,7 @@ class PaymentController extends Controller
 
         $checkout = $this->paymongo->createCheckoutSession(
             $contract->contract_number,
-            10000 * 100,
+            150000 * 100,
             route('contract.payment.success', $contract),
             route('contract.pending')
         );
