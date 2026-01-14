@@ -10,21 +10,26 @@ defineProps<{
 
 const colorMode = useColorMode();
 const auth = useAuth();
-const { getInitials } = useInitials();
 
-const user = computed(() => ({
-    name: auth.value.user.name,
-    avatar: {
-        text: getInitials(auth.value.user.name),
-    },
+/**
+ * Get initials from first and last name
+ */
+function getInitials(first: string, last?: string) {
+    return `${first[0] ?? ''}${last?.[0] ?? ''}`.toUpperCase();
+}
+
+// Computed avatar object for dropdown label
+const avatar = computed(() => ({
+    text: getInitials(auth.value.user.first_name, auth.value.user.last_name),
 }));
 
+// Dropdown menu items
 const items = computed<DropdownMenuItem[][]>(() => [
     [
         {
             type: 'label',
-            label: user.value.name,
-            avatar: user.value.avatar,
+            label: `${auth.value.user.first_name} ${auth.value.user.last_name}`,
+            avatar: avatar.value,
         },
     ],
 
@@ -40,7 +45,6 @@ const items = computed<DropdownMenuItem[][]>(() => [
                     checked: colorMode.value === 'light',
                     onSelect(e: Event) {
                         e.preventDefault();
-
                         colorMode.value = 'light';
                     },
                 },
@@ -50,9 +54,7 @@ const items = computed<DropdownMenuItem[][]>(() => [
                     type: 'checkbox',
                     checked: colorMode.value === 'dark',
                     onUpdateChecked(checked: boolean) {
-                        if (checked) {
-                            colorMode.value = 'dark';
-                        }
+                        if (checked) colorMode.value = 'dark';
                     },
                     onSelect(e: Event) {
                         e.preventDefault();
@@ -61,6 +63,7 @@ const items = computed<DropdownMenuItem[][]>(() => [
             ],
         },
     ],
+
     [
         {
             label: 'Log out',
@@ -83,19 +86,14 @@ function handleLogout() {
         :ui="{ content: collapsed ? 'w-48' : 'w-(--reka-dropdown-menu-trigger-width)' }"
     >
         <UButton
-            v-bind="{
-                ...user,
-                label: collapsed ? undefined : auth.user.name,
-                trailingIcon: collapsed ? undefined : 'i-lucide-chevrons-up-down',
-            }"
+            :label="collapsed ? undefined : `${auth.user.first_name} ${auth.user.last_name}`"
+            :trailingIcon="collapsed ? undefined : 'i-lucide-chevrons-up-down'"
             color="neutral"
             variant="ghost"
             block
             :square="collapsed"
             class="data-[state=open]:bg-elevated"
-            :ui="{
-                trailingIcon: 'text-dimmed',
-            }"
+            :ui="{ trailingIcon: 'text-dimmed' }"
         />
 
         <template #chip-leading="{ item }">
