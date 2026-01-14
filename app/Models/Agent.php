@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class Agent extends Model
 {
@@ -14,6 +15,7 @@ class Agent extends Model
 
     protected $fillable = [
         'user_id',
+        'farmer_id',
         'agent_code',
         'is_verified',
         'verified_at',
@@ -31,6 +33,16 @@ class Agent extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function farmer(): BelongsTo
+    {
+        return $this->belongsTo(Farmer::class);
+    }
+
+    public function qrCode(): MorphOne 
+    { 
+        return $this->morphOne(QrCode::class, 'qrable'); 
     }
 
     /**
