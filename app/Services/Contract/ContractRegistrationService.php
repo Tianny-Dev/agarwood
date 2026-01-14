@@ -30,18 +30,22 @@ class ContractRegistrationService
             'public'
         );
 
+        $agentId = $data['agent_id'] ?? null;
+
         $contractable = match ($type) {
             'investor' => $user->investor()->create([
                 'id_type' => $data['id_type'],
                 'id_front' => $idFrontPath,
                 'id_back' => $idBackPath,
                 'is_paid' => false,
+                'agent_id' => $agentId,
             ]),
             'partner' => $user->partner()->create([
                 'id_type' => $data['id_type'],
                 'id_front' => $idFrontPath,
                 'id_back' => $idBackPath,
                 'is_paid' => false,
+                'agent_id' => $agentId,
             ]),
         };
 

@@ -2,11 +2,13 @@
 
 namespace App\Services\Auth;
 
+use App\Models\Agent;
 use App\Models\User;
 use App\Services\Contract\ContractRegistrationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 class RegisterUserService
 {
@@ -61,16 +63,38 @@ class RegisterUserService
 
     protected function createRole(User $user, array $data, Request $request): void
     {
-        match ($data['user_type']) {
-            'farmer' => $user->farmer()->create([
-                'farming_background' => $data['farming_background'] ?? null,
-                'years_of_farming' => $data['years_of_farming'] ?? null,
-                'familiarity_tree_cultivation' => $data['familiarity_tree_cultivation'] ?? false,
-            ]),
+        switch ($data['user_type']) {
 
-            'investor', 'partner' =>
+            case 'farmer':
+                $user->farmer()->create([
+                    'farming_background' => $data['farming_background'] ?? null,
+                    'years_of_farming' => $data['years_of_farming'] ?? null,
+                    'familiarity_tree_cultivation' => $data['familiarity_tree_cultivation'] ?? false,
+                ]);
+                break;
+
+            case 'investor':
+            case 'partner':
+                $agentId = null;
+                if (!empty($data['agent_code'])) {
+                    $agent = Agent::query()->where('agent_code', $data['agent_code'])->first();
+                    if ($agent) {
+                        $agentId = $agent->id;
+                    } else {
+                        throw ValidationException::withMessages([
+                            'agent_code' => ['The provided agent code is invalid.'],
+                        ]);
+                    }
+                }
+
+                $data['agent_id'] = $agentId;
+
                 app(ContractRegistrationService::class)
-                    ->create($data['user_type'], $user, $data, $request),
-        };
+                    ->create($data['user_type'], $user, $data, $request);
+                break;
+
+            default:
+                throw new \InvalidArgumentException("Invalid user type: {$data['user_type']}");
+        }
     }
 }
