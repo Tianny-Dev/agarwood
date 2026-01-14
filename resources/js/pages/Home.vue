@@ -1,41 +1,80 @@
 <script setup lang="ts">
+import About from '@/components/landing/About.vue';
+import Abstract from '@/components/landing/Abstract.vue';
+import Banner from '@/components/landing/Banner.vue';
+import Contact from '@/components/landing/Contact.vue';
+import Core from '@/components/landing/Core.vue';
+import Financial from '@/components/landing/Financial.vue';
+import Footer from '@/components/landing/Footer.vue';
+import Gallery from '@/components/landing/Gallery.vue';
+import Map from '@/components/landing/Map.vue';
+import Marketing from '@/components/landing/Marketing.vue';
+import Project from '@/components/landing/Project.vue';
+import Purpose from '@/components/landing/Purpose.vue';
+import Technical from '@/components/landing/Technical.vue';
+import Testimonials from '@/components/landing/Testimonials.vue';
+
 import GuestLayout from '@/layouts/GuestLayout.vue';
-import { login, register, dashboard } from '@/routes';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head } from '@inertiajs/vue3';
 </script>
 
 <template>
     <Head title="Home" />
     <GuestLayout>
-        <div class="min-h-full flex items-center justify-center ">
-            <div class="max-w-md w-full rounded-lg p-8 text-center">
-                <h1 class="text-3xl font-bold mb-4 text-gray-800">Welcome</h1>
-                <p class="text-gray-600 mb-6">Hello, welcome to Agarwood!</p>
-                <div class="flex gap-2">
-                    <Link
-                        v-if="$page.props.auth.user"
-                        :href="dashboard()"
-                        class="inline-block w-full bg-amber-950 text-white font-medium py-2 px-4 rounded hover:bg-amber-900 transition"
-                    >
-                        Dashboard
-                    </Link>
+        <!-- Banner Start -->
+        <Banner />
+        <!-- Banner End -->
 
-                    <template v-else>
-                        <Link
-                            :href="login()"
-                            class="inline-block w-full bg-amber-950 text-white font-medium py-2 px-4 rounded hover:bg-amber-900 transition"
-                        >
-                            Login
-                        </Link>
-                        <Link
-                            :href="register()"
-                            class="inline-block w-full bg-amber-950 text-white font-medium py-2 px-4 rounded hover:bg-amber-900 transition"
-                        >
-                            Register
-                        </Link>
-                    </template>
-                </div>
-            </div>
-        </div>
+        <!-- about us start -->
+        <About />
+        <!-- about us end -->
+
+        <!-- core values start -->
+        <Core />
+        <!-- core values end -->
+
+        <!-- gallery start -->
+        <Gallery />
+        <!-- gallery end -->
+
+        <!-- abstract start -->
+        <Abstract />
+        <!-- abstract end -->
+
+        <!-- project overview start -->
+        <Project />
+        <!-- project overview end -->
+
+        <!-- purpose & Objectives start -->
+        <Purpose />
+        <!-- purpose & Objectives end -->
+
+        <!-- marketing potential start -->
+        <Marketing />
+        <!-- marketing potential end -->
+
+        <!-- Financial Plan start -->
+        <Financial />
+        <!-- Financial Plan end -->
+
+        <!-- Technical Feasibility start -->
+        <Technical />
+        <!-- Technical Feasibility end -->
+
+        <!-- Testimonials start -->
+        <Testimonials />
+        <!-- Testimonials end -->
+
+        <!-- contact us start -->
+        <Contact />
+        <!-- contact us start -->
+
+        <!-- map start -->
+        <Map />
+        <!-- map start -->
+
+        <!-- footer start -->
+        <Footer />
+        <!-- footer end -->
     </GuestLayout>
 </template>
