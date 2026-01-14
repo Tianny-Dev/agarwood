@@ -140,6 +140,8 @@ class UserFactory extends Factory
             return [
                 'role_id' => $this->generateRoleId('farmer'),
             ];
+        })->afterCreating(function (User $user) {
+            $user->assignRole('farmer');
         });
     }
 
@@ -152,6 +154,8 @@ class UserFactory extends Factory
             return [
                 'role_id' => $this->generateRoleId('investor'),
             ];
+        })->afterCreating(function (User $user) {
+            $user->assignRole('investor');
         });
     }
 
@@ -164,6 +168,8 @@ class UserFactory extends Factory
             return [
                 'role_id' => $this->generateRoleId('partner'),
             ];
+        })->afterCreating(function (User $user) {
+            $user->assignRole('partner');
         });
     }
 
@@ -176,6 +182,8 @@ class UserFactory extends Factory
             return [
                 'role_id' => $this->generateRoleId('agent'),
             ];
+        })->afterCreating(function (User $user) {
+            $user->assignRole('agent');
         });
     }
 

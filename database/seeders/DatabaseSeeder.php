@@ -17,6 +17,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Seed roles and permissions first
+        $this->call(RolesAndPermissionsSeeder::class);
+
         User::resetRoleCounters();
 
         // ------------------------------
@@ -32,6 +35,7 @@ class DatabaseSeeder extends Seeder
             'phone_number' => '639170000001',
             'civil_status' => CivilStatusEnum::MARRIED->value,
         ]);
+        $superAdmin->assignRole('super-admin');
 
         User::setRoleCounter('super_admin', 1);
 
@@ -48,6 +52,7 @@ class DatabaseSeeder extends Seeder
             'phone_number' => '639170000002',
             'civil_status' => CivilStatusEnum::SINGLE->value,
         ]);
+        $agentUser->assignRole('agent');
 
         $testAgent = Agent::factory()->create([
             'user_id' => $agentUser->id,
@@ -70,6 +75,7 @@ class DatabaseSeeder extends Seeder
             'phone_number' => '639170000003',
             'civil_status' => CivilStatusEnum::MARRIED->value,
         ]);
+        $farmerUser->assignRole('farmer');
 
         Farmer::factory()->create([
             'user_id' => $farmerUser->id,
@@ -93,6 +99,7 @@ class DatabaseSeeder extends Seeder
             'phone_number' => '639170000004',
             'civil_status' => CivilStatusEnum::SINGLE->value,
         ]);
+        $investorUser->assignRole('investor');
 
         Investor::factory()->create([
             'user_id' => $investorUser->id,
@@ -116,6 +123,7 @@ class DatabaseSeeder extends Seeder
             'phone_number' => '639170000005',
             'civil_status' => CivilStatusEnum::MARRIED->value,
         ]);
+        $partnerUser->assignRole('partner');
 
         Partner::factory()->create([
             'user_id' => $partnerUser->id,
