@@ -5,6 +5,6 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 
 
-Route::middleware(['auth', 'verified', 'contract.approved'])->prefix('partner')->name('partner.')->group(function () {
+Route::middleware(['auth', 'verified', 'contract.approved', 'role:partner'])->prefix('partner')->name('partner.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 });
