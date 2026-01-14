@@ -34,7 +34,10 @@ const handleSubmit = () => submit(store.url());
     <Head title="Register" />
 
     <AuthLayout>
-        <h2 class="mb-4 text-center text-2xl font-semibold">Create an account</h2>
+        <!-- <h2 class="mb-4 text-center text-2xl font-semibold">Create an account</h2> -->
+        <h2 class="mb-4 text-center text-2xl font-semibold">
+            {{ userType ? `Create ${userType.charAt(0).toUpperCase() + userType.slice(1)} Account` : 'Create an Account' }}
+        </h2>
 
         <div class="mb-8">
             <UStepper disabled v-model="currentStep" :items="currentStepItems" />
