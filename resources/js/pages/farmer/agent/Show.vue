@@ -93,22 +93,6 @@ function formatDate(date?: string | Date | null) {
                 <p class="text-sm text-muted">Address</p>
                 <p class="font-medium">{{ agent.user?.address ?? 'N/A' }}</p>
             </div>
-
-            <!-- Verification Info -->
-            <div>
-                <p class="text-sm text-muted">Email Verified At</p>
-                <p class="font-medium">{{ formatDate(agent.user?.email_verified_at) }}</p>
-            </div>
-
-            <div>
-                <p class="text-sm text-muted">Phone Verified At</p>
-                <p class="font-medium">{{ formatDate(agent.user?.phone_number_verified_at) }}</p>
-            </div>
-
-            <div>
-                <p class="text-sm text-muted">Joined</p>
-                <p class="font-medium">{{ formatDate(agent.user?.created_at) }}</p>
-            </div>
         </div>
 
         <!-- QR Code -->
