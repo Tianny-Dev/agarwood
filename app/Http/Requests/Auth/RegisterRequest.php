@@ -56,6 +56,11 @@ class RegisterRequest extends FormRequest
                 'id_type' => ['required', new Enum(IdType::class)],
                 'id_front' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:10240'],
                 'id_back'  => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:10240'],
+                'agent_code' => [
+                    'nullable',                 
+                    'string',
+                    'exists:agents,agent_code', 
+                ],
             ]);
         }
 
@@ -95,5 +100,16 @@ class RegisterRequest extends FormRequest
                 'birthday' => sprintf('%04d-%02d-%02d', $year, $month, $day),
             ]);
         }
+    }
+
+    /**
+     * Custom error messages
+     */
+    public function messages(): array
+    {
+        return [
+            'agent_code.exists' => 'The selected agent code is invalid or does not exist.',
+            'agent_code.string' => 'The agent code must be a valid string.',
+        ];
     }
 }
