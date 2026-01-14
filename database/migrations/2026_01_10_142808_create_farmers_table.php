@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('farmers', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('user_id')->unique()->constrained()->cascadeOnUpdate()->cascadeOnDelete();
             $table->text('farming_background')->nullable();
             $table->unsignedInteger('years_of_farming')->nullable();
             $table->boolean('familiarity_tree_cultivation')->default(false);
