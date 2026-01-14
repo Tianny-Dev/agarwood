@@ -1,13 +1,16 @@
 <?php
 
+use App\Http\Controllers\ContractSampleController;
 use App\Http\Controllers\Home\HomeController;
 use App\Http\Controllers\ContractController;
-use App\Http\Controllers\PaymentController; 
+use App\Http\Controllers\PaymentController;
 use App\Services\DashboardResolver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+Route::get('/contract-preview', [ContractSampleController::class, 'showStaticContract']);
 
 Route::middleware(['auth', 'verified'])->prefix('contract')->name('contract.')->group(function () {
     Route::get('pending', [ContractController::class, 'pending'])->name('pending')->middleware('redirect.if.contract.paid');
