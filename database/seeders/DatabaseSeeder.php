@@ -42,7 +42,31 @@ class DatabaseSeeder extends Seeder
         User::setRoleCounter('super_admin', 1);
 
         // ------------------------------
-        // 2. Create an Agent (Test Account)
+        // 2. Create a Farmer (Test Account)
+        // ------------------------------
+        $farmerUser = User::factory()->create([
+            'role_id' => '3-26-0001',
+            'username' => 'farmer',
+            'first_name' => 'Juan',
+            'middle_name' => 'Mancho',
+            'last_name' => 'Dela Cruz',
+            'email' => 'farmer@test.com',
+            'phone_number' => '639170000003',
+            'civil_status' => CivilStatusEnum::MARRIED->value,
+        ]);
+        $farmerUser->assignRole('farmer');
+
+        $testFarmer = Farmer::factory()->create([
+            'user_id' => $farmerUser->id,
+            'farming_background' => 'Rice and corn cultivation',
+            'years_of_farming' => 10,
+            'familiarity_tree_cultivation' => true,
+        ]);
+
+        User::setRoleCounter('farmer', 1);
+
+        // ------------------------------
+        // 3. Create an Agent (Test Account)
         // ------------------------------
         $agentUser = User::factory()->create([
             'role_id' => '2-26-0001',
@@ -58,35 +82,12 @@ class DatabaseSeeder extends Seeder
 
         $testAgent = Agent::factory()->create([
             'user_id' => $agentUser->id,
+            'farmer_id' => $testFarmer->id,
             'verified_by' => $superAdmin->id,
             'verified_at' => now(),
         ]);
 
         User::setRoleCounter('agent', 1);
-
-        // ------------------------------
-        // 3. Create a Farmer (Test Account)
-        // ------------------------------
-        $farmerUser = User::factory()->create([
-            'role_id' => '3-26-0001',
-            'username' => 'farmer',
-            'first_name' => 'Juan',
-            'middle_name' => 'Mancho',
-            'last_name' => 'Dela Cruz',
-            'email' => 'farmer@test.com',
-            'phone_number' => '639170000003',
-            'civil_status' => CivilStatusEnum::MARRIED->value,
-        ]);
-        $farmerUser->assignRole('farmer');
-
-        Farmer::factory()->create([
-            'user_id' => $farmerUser->id,
-            'farming_background' => 'Rice and corn cultivation',
-            'years_of_farming' => 10,
-            'familiarity_tree_cultivation' => true,
-        ]);
-
-        User::setRoleCounter('farmer', 1);
 
         // ------------------------------
         // 4. Create an Investor (Test Account)
@@ -158,11 +159,12 @@ class DatabaseSeeder extends Seeder
         // ------------------------------
         // 7. Random Farmers
         // ------------------------------
-        User::factory()
+        $additionalFarmers = Farmer::factory()
             ->count(5)
-            ->farmer()
-            ->has(Farmer::factory())
             ->create();
+
+        // Combine all farmers for random assignment
+        $allFarmers = collect([$testFarmer])->concat($additionalFarmers);
 
         // ------------------------------
         // 8. Random Investors with Agent assignment and Contracts
@@ -197,6 +199,22 @@ class DatabaseSeeder extends Seeder
                         ];
                     })
                     ->has(Contract::factory()->count(rand(1, 2)), 'contract')
+            )
+            ->create();
+
+        // ------------------------------
+        // 10. Random Agents with Farmer assignment 
+        // ------------------------------
+        User::factory()
+            ->count(5)
+            ->agent()
+            ->has(
+                Agent::factory()
+                    ->state(function () use ($allFarmers) {
+                        return [
+                            'farmer_id' => $allFarmers->random()->id,
+                        ];
+                    })
             )
             ->create();
     }

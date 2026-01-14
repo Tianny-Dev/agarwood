@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->unique()->constrained()->cascadeOnDelete();
 
+            $table->foreignId('farmer_id')->nullable()->constrained('farmers')->nullOnDelete();
             $table->string('agent_code')->unique(); 
             $table->boolean('is_verified')->default(false);
             $table->timestamp('verified_at')->nullable();
