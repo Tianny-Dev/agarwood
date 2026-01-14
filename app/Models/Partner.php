@@ -16,6 +16,7 @@ class Partner extends Model implements RequiresContract
 
     protected $fillable = [
         'user_id',
+        'agent_id',
         'id_type',
         'id_front',
         'id_back',
