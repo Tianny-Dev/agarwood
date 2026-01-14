@@ -4,8 +4,10 @@ namespace Database\Seeders;
 
 use App\Enums\CivilStatusEnum;
 use App\Enums\IdType;
+use App\Models\Agent;
 use App\Models\Farmer;
 use App\Models\Investor;
+use App\Models\Partner;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -17,7 +19,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create Farmer user profile
+        // ------------------------------
+        // 1. Create a Farmer
+        // ------------------------------
         $farmer = User::factory()->create([
             'role_id' => '2-26-0001',
             'username' => 'farmer1',
@@ -36,7 +40,9 @@ class DatabaseSeeder extends Seeder
             'familiarity_tree_cultivation' => true,
         ]);
 
-        // Create Investor user profile
+        // ------------------------------
+        // 2. Create an Investor (no agent yet)
+        // ------------------------------
         $investor = User::factory()->create([
             'role_id' => '3-26-0001',
             'username' => 'investor1',
@@ -54,7 +60,9 @@ class DatabaseSeeder extends Seeder
             'id_back' => 'back_id.png',
         ]);
 
-        // Create Super-Admin
+        // ------------------------------
+        // 3. Create a Super-Admin
+        // ------------------------------
         $superAdmin = User::factory()->create([
             'role_id' => '1-26-0001',
             'username' => 'super_admin',
@@ -65,16 +73,46 @@ class DatabaseSeeder extends Seeder
             'civil_status' => CivilStatusEnum::MARRIED->value,
         ]);
 
-        // random farmers
+        // ------------------------------
+        // 4. Create Agents
+        // ------------------------------
+        $agents = Agent::factory()
+            ->count(3)
+            ->verified($superAdmin->id) 
+            ->create();
+
+        // ------------------------------
+        // 5. Random Farmers
+        // ------------------------------
         User::factory()
             ->count(5)
             ->has(Farmer::factory())
             ->create();
 
-        // random investors
+        // ------------------------------
+        // 6. Random Investors with Agent assignment
+        // ------------------------------
         User::factory()
             ->count(5)
-            ->has(Investor::factory())
+            ->has(Investor::factory()->state(function () use ($agents) {
+                return [
+                    'agent_id' => $agents->random()->id, 
+                    'id_front' => 'front_id.png',
+                    'id_back' => 'back_id.png',
+                ];
+            }))
+            ->create();
+
+        // ------------------------------
+        // 7. Random Partners with Agent assignment
+        // ------------------------------
+        User::factory()
+            ->count(5)
+            ->has(Partner::factory()->state(function () use ($agents) {
+                return [
+                    'agent_id' => $agents->random()->id,
+                ];
+            }))
             ->create();
     }
 }
