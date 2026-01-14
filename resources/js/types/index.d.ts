@@ -1,5 +1,7 @@
 export interface Auth {
     user: User;
+    roles: string[]      
+    permissions: string[]
 }
 
 export type AppPageProps<T extends Record<string, unknown> = Record<string, unknown>> = T & {
