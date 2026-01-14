@@ -43,6 +43,7 @@ const idVerificationFields = [
   ], required: true, step: 4 },
   { name: 'id_front', label: 'ID Front', type: 'file', accept: 'image/*,.pdf', help: 'Upload a clear photo of the front of your ID', required: true, step: 4 },
   { name: 'id_back', label: 'ID Back', type: 'file', accept: 'image/*,.pdf', help: 'Upload a clear photo of the back of your ID', required: true, step: 4 },
+  { name: 'agent_code', label: 'Agent Code (Optional)', type: 'text', placeholder: 'AGT-AB123', required: false, autocomplete: 'agent-code', step: 4 },
 ];
 
 const idVerificationSteps = [
