@@ -9,6 +9,7 @@ class DashboardResolver
     public function resolve(User $user): string
     {
         return match (true) {
+            $user->agent !== null => route('agent.dashboard'),
             $user->investor !== null => route('investor.dashboard'),
             $user->farmer !== null   => route('farmer.dashboard'),
             $user->partner !== null   => route('partner.dashboard'),
