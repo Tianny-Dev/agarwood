@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\Agent\EnsureAgentIsVerified;
+use App\Http\Middleware\Agent\RedirectIfAgentVerified;
 use App\Http\Middleware\EnsureContractApproved;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\RedirectIfContractPaid;
@@ -23,6 +25,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'contract.approved' => EnsureContractApproved::class,
             'redirect.if.contract.paid' => RedirectIfContractPaid::class,
+
+            'agent.verified' => EnsureAgentIsVerified::class,
+            'agent.unverified.only' => RedirectIfAgentVerified::class,
+
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
