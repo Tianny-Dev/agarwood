@@ -10,7 +10,7 @@ const open = ref(false);
 const page = usePage<AppPageProps>();
 const roles = page.props.auth?.roles ?? [];
 
-const rolePriority = ['super_admin', 'agent', 'farmer', 'investor', 'partner'];
+const rolePriority = ['super-admin', 'agent', 'farmer', 'investor', 'partner'];
 const userRole = rolePriority.find((r) => roles.includes(r)) || 'guest';
 
 // Sidebar config per role
@@ -22,11 +22,12 @@ type SidebarConfigItem = {
 };
 
 const sidebarConfig: Record<string, SidebarConfigItem[]> = {
-    super_admin: [
-        { label: 'Dashboard', icon: 'i-lucide-house', to: '/admin/dashboard' },
+    'super-admin': [
+        { label: 'Dashboard', icon: 'i-lucide-house', to: '/super-admin/dashboard' },
         { label: 'Agents', icon: 'i-lucide-users', to: '/admin/agents' },
         { label: 'Farmers', icon: 'i-lucide-leaf', to: '/admin/farmers' },
         { label: 'Investors', icon: 'i-lucide-banknote', to: '/admin/investors' },
+        { label: 'Allocation Management', icon: 'i-lucide-house', to: '/super-admin/allocation' },
     ],
     agent: [
         { label: 'Dashboard', icon: 'i-lucide-house', to: '/agent/dashboard' },

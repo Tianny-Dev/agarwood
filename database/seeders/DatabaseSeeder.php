@@ -24,6 +24,11 @@ class DatabaseSeeder extends Seeder
         User::resetRoleCounters();
         Contract::resetCounter();
 
+        $this->call([
+            PercentageTypeSeeder::class,
+            PercentageBreakdownsSeeder::class,
+        ]);
+
         // ------------------------------
         // 1. Create a Super-Admin (Test Account)
         // ------------------------------
@@ -203,7 +208,7 @@ class DatabaseSeeder extends Seeder
             ->create();
 
         // ------------------------------
-        // 10. Random Agents with Farmer assignment 
+        // 10. Random Agents with Farmer assignment
         // ------------------------------
         User::factory()
             ->count(5)

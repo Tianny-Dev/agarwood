@@ -12,6 +12,7 @@ class DashboardResolver
             $user->investor !== null => route('investor.dashboard'),
             $user->farmer !== null   => route('farmer.dashboard'),
             $user->partner !== null   => route('partner.dashboard'),
+            $user->hasRole('super-admin') =>route('super-admin.dashboard'),
             // $user->isAdmin()         => route('admin.dashboard'),
             default                  => route('home'),
         };
