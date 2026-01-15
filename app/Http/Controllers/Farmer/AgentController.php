@@ -126,8 +126,11 @@ class AgentController extends Controller
     {
         DB::transaction(function () use ($agent) {
             $agent->user()->delete(); 
+            $agent->delete(); 
         });
 
-        return redirect()->route('farmer.agents.index')->with('success', 'Agent deleted successfully.');
+        // return redirect()->route('farmer.agents.index')->with('success', 'Agent deleted successfully.');
+        return to_route('farmer.agents.index')
+            ->with('success', 'Agent deleted successfully.');
     }
 }
