@@ -76,6 +76,7 @@ class RegisterUserService
                     'agent_code' => $this->generateUniqueAgentCode(),
                     'farmer_id' => $data['farmer_id'] ?? null,
                 ]);
+                $user->assignRole('agent');
                 break;
 
             case 'farmer':
@@ -84,10 +85,12 @@ class RegisterUserService
                     'years_of_farming' => $data['years_of_farming'] ?? null,
                     'familiarity_tree_cultivation' => $data['familiarity_tree_cultivation'] ?? false,
                 ]);
+                $user->assignRole('farmer');
                 break;
 
             case 'investor':
             case 'partner':
+                $user->assignRole($data['user_type']);
                 $agentId = null;
                 if (!empty($data['agent_code'])) {
                     $agent = Agent::query()->where('agent_code', $data['agent_code'])->first();
