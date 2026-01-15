@@ -2,9 +2,10 @@
 import Layout from '@/layouts/AppLayout.vue';
 import type { Agent, AppPageProps } from '@/types';
 import { usePage } from '@inertiajs/vue3';
-import { resolveComponent } from 'vue';
+import { ref, resolveComponent } from 'vue';
 
 defineOptions({ layout: Layout });
+const toast = useToast();
 
 // ---------------- Components ----------------
 const UAvatar = resolveComponent('UAvatar');
@@ -30,6 +31,32 @@ function formatDate(date?: string | Date | null) {
     const d = typeof date === 'string' ? new Date(date) : date;
     return df.format(d);
 }
+
+// ---------------- Delete Modal ----------------
+const modalOpen = ref(false);
+
+function openDeleteModal() {
+    modalOpen.value = true;
+}
+
+function closeModal() {
+    modalOpen.value = false;
+}
+
+function deleteAgent() {
+    router.delete(`/farmer/agents/${agent.id}`, {
+        preserveScroll: true,
+        preserveState: false,
+        onSuccess: () => {
+            toast.add({
+                title: 'Agent deleted',
+                description: `Agent ${agent.user?.name} has been deleted successfully.`,
+                icon: 'i-lucide-trash',
+                duration: 4000,
+            });
+        },
+    });
+}
 </script>
 
 <template>
@@ -38,9 +65,6 @@ function formatDate(date?: string | Date | null) {
             <UDashboardNavbar title="Agents">
                 <template #leading>
                     <UDashboardSidebarCollapse as="button" />
-                </template>
-                <template #right>
-                    <AgentsAddModal />
                 </template>
             </UDashboardNavbar>
         </template>
@@ -73,6 +97,8 @@ function formatDate(date?: string | Date | null) {
 
                         <div class="flex gap-2">
                             <UButton :href="`/farmer/agents/${agent.id}/edit`" color="primary" icon="i-lucide-pencil"> Edit Profile </UButton>
+
+                            <UButton color="error" variant="outline" icon="i-lucide-trash" @click="openDeleteModal"> Delete </UButton>
 
                             <UButton :href="`/farmer/agents`" variant="outline" icon="i-lucide-arrow-left"> Back </UButton>
                         </div>
@@ -146,4 +172,19 @@ function formatDate(date?: string | Date | null) {
             </div>
         </template>
     </UDashboardPanel>
+    <UModal title="Delete Agent" v-model:open="modalOpen">
+        <template #body>
+            <p>
+                Are you sure you want to delete
+                <strong>{{ agent.user?.name ?? 'this agent' }}</strong
+                >?
+            </p>
+            <p class="text-sm text-muted">This action cannot be undone.</p>
+
+            <div class="mt-4 flex justify-end gap-2">
+                <UButton color="neutral" variant="outline" @click="closeModal">Cancel</UButton>
+                <UButton color="error" @click="deleteAgent">Delete</UButton>
+            </div>
+        </template>
+    </UModal>
 </template>
