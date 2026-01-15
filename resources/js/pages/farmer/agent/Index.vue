@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import Layout from '@/layouts/AppLayout.vue';
 import type { Agent, AppPageProps, User } from '@/types';
-import { usePage } from '@inertiajs/vue3';
-import { getPaginationRowModel, Table, type Column, type ColumnDef, type Row } from '@tanstack/table-core';
+import { router, usePage } from '@inertiajs/vue3';
+import { ColumnFiltersState, getFilteredRowModel, getPaginationRowModel, Table, type Column, type ColumnDef, type Row } from '@tanstack/table-core';
 import { h, ref, resolveComponent, watch } from 'vue';
 
 defineOptions({ layout: Layout });
@@ -21,11 +21,11 @@ const { props } = usePage<AppPageProps>();
 const agents = ref<Agent[]>(props.agents);
 
 // ---------------- Table State ----------------
-const columnFilters = ref([{ id: 'email', value: '' }]);
+const columnFilters = ref<ColumnFiltersState>([{ id: 'email', value: '' }]);
 const columnVisibility = ref<Record<string, boolean> | undefined>();
 const rowSelection = ref<Record<string, boolean>>({});
 const pagination = ref({ pageIndex: 0, pageSize: 10 });
-const table = ref<Table<Agent> | null>(null);
+const tanstackTable = ref<Table<Agent> | null>(null);
 
 // ---------------- Helpers ----------------
 function getInitials(first: string, last?: string) {
@@ -46,8 +46,15 @@ function getRowActions(row: Row<Agent>) {
     return [
         { type: 'label', label: 'Actions' },
         {
+            label: 'View Agent',
+            icon: 'i-lucide-eye',
+            onSelect: () => {
+                router.visit(`/farmer/agents/${row.original.id}`);
+            },
+        },
+        {
             label: 'View QR',
-            icon: 'i-lucide-qrcode',
+            icon: 'i-lucide-code',
             onSelect: () => {
                 toast.add({
                     title: 'QR Code',
@@ -56,6 +63,7 @@ function getRowActions(row: Row<Agent>) {
             },
         },
         { type: 'separator' },
+
         {
             label: 'Edit Agent',
             icon: 'i-lucide-edit',
@@ -149,9 +157,17 @@ const columns: ColumnDef<Agent>[] = [
         accessorKey: 'verified',
         header: 'Verified',
         accessorFn: (row: Agent) => row.is_verified,
+        filterFn: (row, _columnId, filterValue: boolean) => {
+            return row.original.is_verified === filterValue;
+        },
         cell: ({ row }: { row: Row<Agent> }) =>
-            h(UBadge, { color: row.original.is_verified ? 'success' : 'error', variant: 'subtle' }, () =>
-                row.original.is_verified ? 'Verified' : 'Unverified',
+            h(
+                UBadge,
+                {
+                    color: row.original.is_verified ? 'success' : 'error',
+                    variant: 'subtle',
+                },
+                () => (row.original.is_verified ? 'Verified' : 'Unverified'),
             ),
     },
 
@@ -173,13 +189,10 @@ const columns: ColumnDef<Agent>[] = [
 const statusFilter = ref<'all' | 'verified' | 'unverified'>('all');
 
 watch(statusFilter, (val) => {
-    const t = table.value;
-    if (!t) return;
-
-    const column = t.getColumn('verified');
-    if (!column) return;
-
-    column.setFilterValue(val === 'all' ? undefined : val === 'verified');
+    columnFilters.value =
+        val === 'all'
+            ? columnFilters.value.filter((f) => f.id !== 'verified')
+            : [...columnFilters.value.filter((f) => f.id !== 'verified'), { id: 'verified', value: val === 'verified' }];
 });
 </script>
 
@@ -210,12 +223,17 @@ watch(statusFilter, (val) => {
             </div>
 
             <UTable
-                ref="table"
+                @ready="tanstackTable = $event"
                 v-model:column-filters="columnFilters"
                 v-model:column-visibility="columnVisibility"
                 v-model:row-selection="rowSelection"
                 v-model:pagination="pagination"
-                :pagination-options="{ getPaginationRowModel: getPaginationRowModel() }"
+                :table-options="{
+                    getFilteredRowModel: getFilteredRowModel(),
+                }"
+                :pagination-options="{
+                    getPaginationRowModel: getPaginationRowModel(),
+                }"
                 :data="agents"
                 :columns="columns"
                 :loading="false"

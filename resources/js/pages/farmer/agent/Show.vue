@@ -10,6 +10,7 @@ defineOptions({ layout: Layout });
 const UAvatar = resolveComponent('UAvatar');
 const UBadge = resolveComponent('UBadge');
 const UButton = resolveComponent('UButton');
+const UCard = resolveComponent('UCard');
 
 // ---------------- Props ----------------
 type ShowPageProps = AppPageProps & { agent: Agent };
@@ -32,79 +33,102 @@ function formatDate(date?: string | Date | null) {
 </script>
 
 <template>
-    <div class="mx-auto max-w-4xl space-y-8 p-6">
-        <!-- Header -->
-        <div class="flex items-center gap-6">
-            <UAvatar
-                :src="agent.user?.avatar"
-                :text="!agent.user?.avatar ? getInitials(agent.user) : undefined"
-                size="2xl"
-                class="bg-primary text-white"
-            />
-            <div>
-                <h1 class="text-3xl font-bold">{{ agent.user?.name ?? 'Unknown User' }}</h1>
-                <p class="text-muted">@{{ agent.user?.username ?? 'N/A' }}</p>
-                <UBadge :color="agent.is_verified ? 'success' : 'error'" variant="subtle" class="mt-2 inline-block">
-                    {{ agent.is_verified ? 'Verified Agent' : 'Unverified Agent' }}
-                </UBadge>
-            </div>
-        </div>
+    <div class="w-full space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+        <!-- Profile Header -->
+        <UCard>
+            <div class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+                <div class="flex items-center gap-4">
+                    <UAvatar
+                        :src="agent.user?.avatar"
+                        :text="!agent.user?.avatar ? getInitials(agent.user) : undefined"
+                        size="3xl"
+                        class="bg-primary text-white"
+                    />
 
-        <!-- Agent Details Grid -->
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <!-- Agent Code -->
-            <div>
-                <p class="text-sm text-muted">Agent Code</p>
-                <p class="font-medium">{{ agent.agent_code }}</p>
-            </div>
+                    <div class="space-y-1">
+                        <h1 class="text-xl leading-tight font-semibold sm:text-2xl">
+                            {{ agent.user?.name ?? 'Unknown User' }}
+                        </h1>
 
-            <!-- Email -->
-            <div>
-                <p class="text-sm text-muted">Email</p>
-                <p class="font-medium">{{ agent.user?.email ?? 'N/A' }}</p>
-            </div>
+                        <p class="text-sm text-muted">@{{ agent.user?.username ?? 'N/A' }}</p>
 
-            <!-- Phone Number -->
-            <div>
-                <p class="text-sm text-muted">Phone Number</p>
-                <p class="font-medium">{{ agent.user?.phone_number ?? 'N/A' }}</p>
-            </div>
+                        <UBadge :color="agent.is_verified ? 'success' : 'error'" variant="subtle" class="mt-1">
+                            {{ agent.is_verified ? 'Verified Agent' : 'Unverified Agent' }}
+                        </UBadge>
+                    </div>
+                </div>
 
-            <!-- Birthday -->
-            <div>
-                <p class="text-sm text-muted">Birthday</p>
-                <p class="font-medium">{{ formatDate(agent.user?.birthday) }}</p>
-            </div>
+                <div class="flex gap-2">
+                    <UButton :href="`/farmer/agents/${agent.id}/edit`" color="primary" icon="i-lucide-pencil"> Edit Profile </UButton>
 
-            <!-- Gender -->
-            <div>
-                <p class="text-sm text-muted">Gender</p>
-                <p class="font-medium capitalize">{{ agent.user?.gender ?? 'N/A' }}</p>
+                    <UButton :href="`/farmer/agents`" variant="outline" icon="i-lucide-arrow-left"> Back </UButton>
+                </div>
             </div>
+        </UCard>
 
-            <!-- Civil Status -->
-            <div>
-                <p class="text-sm text-muted">Civil Status</p>
-                <p class="font-medium capitalize">{{ agent.user?.civil_status ?? 'N/A' }}</p>
-            </div>
+        <!-- Details -->
+        <UCard>
+            <template #header>
+                <h2 class="text-base font-medium">Agent Information</h2>
+            </template>
 
-            <!-- Address -->
-            <div class="sm:col-span-2 lg:col-span-3">
-                <p class="text-sm text-muted">Address</p>
-                <p class="font-medium">{{ agent.user?.address ?? 'N/A' }}</p>
-            </div>
-        </div>
+            <dl class="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
+                <div>
+                    <dt class="text-sm text-muted">Agent Code</dt>
+                    <dd class="mt-1 font-medium">{{ agent.agent_code }}</dd>
+                </div>
+
+                <div>
+                    <dt class="text-sm text-muted">Email</dt>
+                    <dd class="mt-1 font-medium">{{ agent.user?.email ?? 'N/A' }}</dd>
+                </div>
+
+                <div>
+                    <dt class="text-sm text-muted">Phone Number</dt>
+                    <dd class="mt-1 font-medium">{{ agent.user?.phone_number ?? 'N/A' }}</dd>
+                </div>
+
+                <div>
+                    <dt class="text-sm text-muted">Birthday</dt>
+                    <dd class="mt-1 font-medium">
+                        {{ formatDate(agent.user?.birthday) }}
+                    </dd>
+                </div>
+
+                <div>
+                    <dt class="text-sm text-muted">Gender</dt>
+                    <dd class="mt-1 font-medium capitalize">
+                        {{ agent.user?.gender ?? 'N/A' }}
+                    </dd>
+                </div>
+
+                <div>
+                    <dt class="text-sm text-muted">Civil Status</dt>
+                    <dd class="mt-1 font-medium capitalize">
+                        {{ agent.user?.civil_status ?? 'N/A' }}
+                    </dd>
+                </div>
+
+                <div class="sm:col-span-2 lg:col-span-3">
+                    <dt class="text-sm text-muted">Address</dt>
+                    <dd class="mt-1 font-medium">
+                        {{ agent.user?.address ?? 'N/A' }}
+                    </dd>
+                </div>
+            </dl>
+        </UCard>
 
         <!-- QR Code -->
-        <div v-if="agent.qr_code_path" class="mt-6 flex flex-col items-start gap-2">
-            <p class="text-sm text-muted">QR Code</p>
-            <img :src="agent.qr_code_path" alt="Agent QR Code" class="h-32 w-32 rounded-md border" />
-        </div>
+        <UCard v-if="agent.qr_code_path">
+            <template #header>
+                <h2 class="text-base font-medium">Agent QR Code</h2>
+            </template>
 
-        <!-- Actions -->
-        <div class="mt-6 flex justify-end gap-3">
-            <UButton :href="`/farmer/agents/${agent.id}/edit`" color="primary">Edit</UButton>
-            <UButton :href="`/farmer/agents`" variant="outline">Back</UButton>
-        </div>
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
+                <img :src="agent.qr_code_path" alt="Agent QR Code" class="h-32 w-32 rounded-lg border bg-white p-2" />
+
+                <p class="max-w-md text-sm text-muted">Scan this QR code to quickly identify or verify this agent.</p>
+            </div>
+        </UCard>
     </div>
 </template>
