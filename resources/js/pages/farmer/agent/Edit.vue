@@ -1,84 +1,160 @@
 <script setup lang="ts">
+import Layout from '@/layouts/AppLayout.vue';
 import type { Agent, AppPageProps } from '@/types';
 import { useForm, usePage } from '@inertiajs/vue3';
+import { reactive } from 'vue';
+
+defineOptions({ layout: Layout });
+const toast = useToast();
 
 const { props } = usePage<AppPageProps & { agent: Agent }>();
+const agent = props.agent;
 
 const form = useForm({
-    first_name: props.agent.user.first_name,
-    middle_name: props.agent.user.middle_name,
-    last_name: props.agent.user.last_name,
-    username: props.agent.user.username,
-    email: props.agent.user.email,
-    phone_number: props.agent.user.phone_number,
-    birthday: props.agent.user.birthday,
-    gender: props.agent.user.gender,
-    address: props.agent.user.address,
-    civil_status: props.agent.user.civil_status,
+    first_name: agent.user?.first_name ?? '',
+    middle_name: agent.user?.middle_name ?? '',
+    last_name: agent.user?.last_name ?? '',
+    username: agent.user?.username ?? '',
+    email: agent.user?.email ?? '',
+    phone_number: agent.user?.phone_number ?? '',
+    birthday: agent.user?.birthday ? new Date(agent.user.birthday).toISOString().substring(0, 10) : '',
+    gender: agent.user?.gender ?? '',
+    civil_status: agent.user?.civil_status ?? '',
+    address: agent.user?.address ?? '',
     password: '',
     password_confirmation: '',
-    is_verified: props.agent.is_verified,
+});
+
+const showPasswordFields = reactive({
+    password: false,
+    password_confirmation: false,
 });
 
 const genders = ['male', 'female', 'other'];
-const civilStatusOptions = ['single', 'married', 'widowed', 'divorced'];
+const civilStatusOptions = ['single', 'married', 'widowed', 'separated', 'divorced'];
 
 function submit() {
-    form.put(`/farmer/agents/${props.agent.id}`, {
+    form.put(`/farmer/agents/${agent.id}`, {
+        preserveScroll: true,
         onSuccess: () => {
-            console.log('Agent updated');
+            toast.add({
+                title: 'Agent updated',
+                description: 'The agent information has been successfully updated.',
+                icon: 'i-lucide-check-circle',
+                duration: 4000,
+            });
         },
     });
 }
 </script>
 
 <template>
-    <div class="w-full max-w-lg p-4">
-        <h2 class="mb-4 text-lg font-semibold">Edit Agent</h2>
-        <form @submit.prevent="submit" class="space-y-4">
-            <!-- Name fields -->
-            <div class="flex gap-2">
-                <UInput v-model="form.first_name" label="First Name" :error="form.errors.first_name" />
-                <UInput v-model="form.middle_name" label="Middle Name" :error="form.errors.middle_name" />
-                <UInput v-model="form.last_name" label="Last Name" :error="form.errors.last_name" />
+    <UDashboardPanel id="agents">
+        <template #header>
+            <UDashboardNavbar title="Agents">
+                <template #leading>
+                    <UDashboardSidebarCollapse as="button" />
+                </template>
+            </UDashboardNavbar>
+        </template>
+
+        <template #body>
+            <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <h2 class="text-2xl font-semibold">Edit Agent</h2>
+                <UButton :href="`/farmer/agents`" variant="outline" icon="i-lucide-arrow-left" size="sm">Back</UButton>
             </div>
 
-            <!-- Username / Email -->
-            <div class="flex gap-2">
-                <UInput v-model="form.username" label="Username" :error="form.errors.username" />
-                <UInput v-model="form.email" label="Email" type="email" :error="form.errors.email" />
-            </div>
+            <div class="mx-auto w-full max-w-7xl">
+                <form @submit.prevent="submit" class="flex flex-col gap-8">
+                    <!-- Full Name -->
+                    <UFormField label="First Name" :error="form.errors.first_name">
+                        <UInput class="w-full" v-model="form.first_name" placeholder="Juan" />
+                    </UFormField>
 
-            <!-- Phone / Birthday -->
-            <div class="flex gap-2">
-                <UInput v-model="form.phone_number" label="Phone Number" :error="form.errors.phone_number" />
-                <UInput v-model="form.birthday" label="Birthday" type="date" :error="form.errors.birthday" />
-            </div>
+                    <UFormField label="Middle Name" :error="form.errors.middle_name">
+                        <UInput class="w-full" v-model="form.middle_name" placeholder="Optional" />
+                    </UFormField>
 
-            <!-- Gender / Civil Status -->
-            <div class="flex gap-2">
-                <USelect v-model="form.gender" :options="genders" label="Gender" :error="form.errors.gender" />
-                <USelect v-model="form.civil_status" :options="civilStatusOptions" label="Civil Status" :error="form.errors.civil_status" />
-            </div>
+                    <UFormField label="Last Name" :error="form.errors.last_name">
+                        <UInput class="w-full" v-model="form.last_name" placeholder="Cruz" />
+                    </UFormField>
 
-            <!-- Address -->
-            <UInput v-model="form.address" label="Address" :error="form.errors.address" />
+                    <!-- Account Info -->
+                    <UFormField label="Username" :error="form.errors.username">
+                        <UInput class="w-full" v-model="form.username" placeholder="juancruz" />
+                    </UFormField>
 
-            <!-- Password -->
-            <div class="flex gap-2">
-                <UInput v-model="form.password" type="password" label="New Password" :error="form.errors.password" />
-                <UInput v-model="form.password_confirmation" type="password" label="Confirm Password" :error="form.errors.password_confirmation" />
-            </div>
+                    <UFormField label="Email" :error="form.errors.email">
+                        <UInput class="w-full" v-model="form.email" type="email" placeholder="juan@example.com" />
+                    </UFormField>
 
-            <!-- Verified toggle (optional) -->
-            <div class="flex items-center gap-2">
-                <UCheckbox v-model="form.is_verified" label="Verified" />
-            </div>
+                    <!-- Contact Info -->
+                    <UFormField label="Phone Number" :error="form.errors.phone_number">
+                        <UInput class="w-full" v-model="form.phone_number" placeholder="09123456789" />
+                    </UFormField>
 
-            <!-- Submit -->
-            <div class="flex justify-end">
-                <UButton type="submit" color="primary">Update Agent</UButton>
+                    <UFormField label="Birthday" :error="form.errors.birthday">
+                        <UInput class="w-full" v-model="form.birthday" type="date" />
+                    </UFormField>
+
+                    <UFormField label="Gender" :error="form.errors.gender">
+                        <USelect class="w-full" v-model="form.gender" :options="genders" placeholder="Select gender" />
+                    </UFormField>
+
+                    <UFormField label="Civil Status" :error="form.errors.civil_status">
+                        <USelect class="w-full" v-model="form.civil_status" :options="civilStatusOptions" placeholder="Select status" />
+                    </UFormField>
+
+                    <!-- Address -->
+                    <UFormField label="Address" :error="form.errors.address">
+                        <UInput class="w-full" v-model="form.address" placeholder="123 Street, City" />
+                    </UFormField>
+
+                    <!-- Password -->
+                    <UFormField label="New Password" :error="form.errors.password">
+                        <UInput
+                            class="w-full"
+                            v-model="form.password"
+                            :type="showPasswordFields.password ? 'text' : 'password'"
+                            placeholder="Enter new password"
+                        >
+                            <template #trailing>
+                                <UButton
+                                    color="neutral"
+                                    variant="link"
+                                    size="sm"
+                                    :icon="showPasswordFields.password ? 'i-lucide-eye-off' : 'i-lucide-eye'"
+                                    @click="showPasswordFields.password = !showPasswordFields.password"
+                                />
+                            </template>
+                        </UInput>
+                    </UFormField>
+
+                    <UFormField label="Confirm Password" :error="form.errors.password_confirmation">
+                        <UInput
+                            class="w-full"
+                            v-model="form.password_confirmation"
+                            :type="showPasswordFields.password_confirmation ? 'text' : 'password'"
+                            placeholder="Confirm new password"
+                        >
+                            <template #trailing>
+                                <UButton
+                                    color="neutral"
+                                    variant="link"
+                                    size="sm"
+                                    :icon="showPasswordFields.password_confirmation ? 'i-lucide-eye-off' : 'i-lucide-eye'"
+                                    @click="showPasswordFields.password_confirmation = !showPasswordFields.password_confirmation"
+                                />
+                            </template>
+                        </UInput>
+                    </UFormField>
+
+                    <!-- Submit -->
+                    <div class="flex justify-end">
+                        <UButton type="submit" color="primary" :loading="form.processing">Update Agent</UButton>
+                    </div>
+                </form>
             </div>
-        </form>
-    </div>
+        </template>
+    </UDashboardPanel>
 </template>

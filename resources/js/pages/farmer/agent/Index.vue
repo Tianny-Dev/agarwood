@@ -68,7 +68,7 @@ function getRowActions(row: Row<Agent>) {
             label: 'Edit Agent',
             icon: 'i-lucide-edit',
             onSelect: () => {
-                toast.add({ title: 'Edit', description: `Edit agent ${row.original.user.name}` });
+                router.visit(`/farmer/agents/${row.original.id}/edit`);
             },
         },
         {
