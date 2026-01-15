@@ -203,22 +203,33 @@ watch(statusFilter, (val) => {
                 <template #leading>
                     <UDashboardSidebarCollapse as="button" />
                 </template>
-                <template #right>
-                    <AgentsAddModal />
-                </template>
             </UDashboardNavbar>
         </template>
 
         <template #body>
-            <div class="mb-4 flex items-center gap-2">
+            <div class="mb-4 flex items-center justify-between gap-2">
+                <!-- Status Filters -->
+                <div class="flex items-center gap-2">
+                    <UButton
+                        v-for="filter in ['all', 'verified', 'unverified'] as const"
+                        :key="filter"
+                        :variant="statusFilter === filter ? 'solid' : 'outline'"
+                        @click="statusFilter = filter"
+                        class="capitalize"
+                    >
+                        {{ filter }}
+                    </UButton>
+                </div>
+
+                <!-- Add Agent Button -->
                 <UButton
-                    v-for="filter in ['all', 'verified', 'unverified'] as const"
-                    :key="filter"
-                    :variant="statusFilter === filter ? 'solid' : 'outline'"
-                    @click="statusFilter = filter"
-                    class="capitalize"
+                    icon="i-lucide-plus"
+                    :disabled="agents.length === 0 && statusFilter !== 'all'"
+                    color="primary"
+                    title="Add Agent (A)"
+                    :href="`/farmer/agents/create`"
                 >
-                    {{ filter }}
+                    Add Agent
                 </UButton>
             </div>
 

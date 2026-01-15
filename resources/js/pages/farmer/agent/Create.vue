@@ -165,7 +165,11 @@ function submit() {
         </template>
 
         <template #body>
-            <h2 class="mb-4 text-lg font-semibold">Add Agent</h2>
+            <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <h2 class="text-lg font-semibold">Add Agent</h2>
+
+                <UButton :href="`/farmer/agents`" variant="outline" icon="i-lucide-arrow-left" size="sm"> Back </UButton>
+            </div>
 
             <!-- Stepper -->
             <div class="mb-8">
