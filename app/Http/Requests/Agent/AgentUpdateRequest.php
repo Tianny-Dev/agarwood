@@ -26,12 +26,6 @@ class AgentUpdateRequest extends FormRequest
         $agentId = $this->route('agent')->user_id ?? null;
 
         return [
-            'username' => [
-                'required',
-                'string',
-                'max:50',
-                Rule::unique('users', 'username')->ignore($agentId),
-            ],
             'first_name' => ['required', 'string', 'max:50'],
             'middle_name' => ['nullable', 'string', 'max:50'],
             'last_name' => ['required', 'string', 'max:50'],
@@ -52,7 +46,6 @@ class AgentUpdateRequest extends FormRequest
             'address' => ['required', 'string', 'max:255'],
             'civil_status' => ['required', 'string', 'max:50'],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
-            'is_verified' => ['nullable', 'boolean'], 
         ];
     }
 }

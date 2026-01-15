@@ -90,7 +90,7 @@ class AgentController extends Controller
         $agent->load('user');
 
         return Inertia::render('farmer/agent/Edit', [
-            'agent' => new AgentResource($agent),
+            'agent' => (new AgentResource($agent))->resolve(),
         ]);
     }
 
@@ -102,9 +102,7 @@ class AgentController extends Controller
         $data = $request->validated();
 
         DB::transaction(function () use ($data, $agent) {
-            // Update User data
             $agent->user()->update([
-                'username' => $data['username'],
                 'first_name' => $data['first_name'],
                 'middle_name' => $data['middle_name'] ?? null,
                 'last_name' => $data['last_name'],
@@ -116,18 +114,9 @@ class AgentController extends Controller
                 'civil_status' => $data['civil_status'],
                 'password' => $data['password'] ? Hash::make($data['password']) : $agent->user->password,
             ]);
-
-            // Optionally: update agent verification status
-            if (isset($data['is_verified'])) {
-                $agent->update([
-                    'is_verified' => $data['is_verified'],
-                    'verified_at' => $data['is_verified'] ? now() : null,
-                    'verified_by' => $data['is_verified'] ? Auth::id() : null,
-                ]);
-            }
         });
 
-        return redirect()->route('farmer.agents.index')->with('success', 'Agent updated successfully.');
+       return redirect()->route('farmer.agents.show', $agent->id)->with('success', 'Agent updated successfully.');
     }
 
     /**
