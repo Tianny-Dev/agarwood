@@ -24,9 +24,9 @@ type SidebarConfigItem = {
 const sidebarConfig: Record<string, SidebarConfigItem[]> = {
     'super-admin': [
         { label: 'Dashboard', icon: 'i-lucide-house', to: '/super-admin/dashboard' },
-        { label: 'Agents', icon: 'i-lucide-users', to: '/admin/agents' },
-        { label: 'Farmers', icon: 'i-lucide-leaf', to: '/admin/farmers' },
-        { label: 'Investors', icon: 'i-lucide-banknote', to: '/admin/investors' },
+        { label: 'Agents', icon: 'i-lucide-users', to: '/super-admin/agents' },
+        { label: 'Farmers', icon: 'i-lucide-leaf', to: '/super-admin/farmers' },
+        { label: 'Investors', icon: 'i-lucide-banknote', to: '/super-admin/investors' },
         { label: 'Allocation Management', icon: 'i-lucide-house', to: '/super-admin/allocation' },
     ],
     agent: [
