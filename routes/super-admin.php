@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\SuperAdmin\AgentVerificationController;
 use App\Http\Controllers\SuperAdmin\AllocationController;
 use App\Http\Controllers\SuperAdmin\DashboardController;
 use Illuminate\Support\Facades\Route;
@@ -7,6 +8,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'role:super-admin'])->prefix('super-admin')->name('super-admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Agents
+    Route::resource('agents', AgentVerificationController::class)->only(['index', 'show', 'update']);
 
     // Allocation
     Route::get('/allocation', [AllocationController::class, 'index'])->name('admin.allocation.index');
