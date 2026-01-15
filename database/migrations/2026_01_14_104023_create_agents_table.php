@@ -22,6 +22,7 @@ return new class extends Migration
             $table->foreignId('verified_by')->nullable()->constrained('users');
 
             $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::table('investors', function (Blueprint $table) {
