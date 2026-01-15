@@ -23,7 +23,7 @@ defineProps<{
 </script>
 
 <template>
-    <Head title="Register" />
+    <Head title="Login" />
 
     <AuthLayout>
         <h2 class="mb-4 text-center text-2xl font-semibold">Login to your account</h2>
