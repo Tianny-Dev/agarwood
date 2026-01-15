@@ -148,9 +148,6 @@ if (cookie.value !== 'accepted' && cookie.value !== 'opt') {
 
                 <!-- Page content -->
                 <slot />
-
-                <!-- Notifications -->
-                <NotificationsSlideover />
             </UDashboardGroup>
         </UApp>
     </Suspense>
