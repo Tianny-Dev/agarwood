@@ -2,7 +2,7 @@
 import Layout from '@/layouts/AppLayout.vue';
 import type { Agent, AppPageProps, User } from '@/types';
 import { router, usePage } from '@inertiajs/vue3';
-import { ColumnFiltersState, getFilteredRowModel, getPaginationRowModel, Table, type Column, type ColumnDef, type Row } from '@tanstack/table-core';
+import { ColumnFiltersState, getFilteredRowModel, getPaginationRowModel, Table, type ColumnDef, type Row } from '@tanstack/table-core';
 import { h, ref, resolveComponent, watch } from 'vue';
 
 defineOptions({ layout: Layout });
@@ -41,6 +41,42 @@ function getAvatarProps(user: User) {
     };
 }
 
+// ---------------- Delete Modal ----------------
+const agentToDelete = ref<Agent | null>(null);
+const modalOpen = ref(false);
+
+function openDeleteModal(agent: Agent) {
+    agentToDelete.value = agent;
+    modalOpen.value = true;
+}
+
+function closeModal() {
+    agentToDelete.value = null;
+    modalOpen.value = false;
+}
+
+function deleteAgent() {
+    if (!agentToDelete.value) return;
+
+    const agentName = agentToDelete.value.user.name;
+
+    router.delete(`/farmer/agents/${agentToDelete.value.id}`, {
+        preserveScroll: true,
+        preserveState: false,
+        onSuccess: () => {
+            toast.add({
+                title: 'Agent deleted',
+                description: `Agent ${agentName} was deleted successfully.`,
+                icon: 'i-lucide-trash',
+                duration: 4000,
+            });
+        },
+        onFinish: () => {
+            closeModal();
+        },
+    });
+}
+
 // ---------------- Row Actions ----------------
 function getRowActions(row: Row<Agent>) {
     return [
@@ -48,36 +84,28 @@ function getRowActions(row: Row<Agent>) {
         {
             label: 'View Agent',
             icon: 'i-lucide-eye',
-            onSelect: () => {
-                router.visit(`/farmer/agents/${row.original.id}`);
-            },
+            onSelect: () => router.visit(`/farmer/agents/${row.original.id}`),
         },
         {
             label: 'View QR',
             icon: 'i-lucide-code',
-            onSelect: () => {
+            onSelect: () =>
                 toast.add({
                     title: 'QR Code',
                     description: row.original.qr_code_path || 'No QR code available',
-                });
-            },
+                }),
         },
         { type: 'separator' },
-
         {
             label: 'Edit Agent',
             icon: 'i-lucide-edit',
-            onSelect: () => {
-                router.visit(`/farmer/agents/${row.original.id}/edit`);
-            },
+            onSelect: () => router.visit(`/farmer/agents/${row.original.id}/edit`),
         },
         {
             label: 'Delete Agent',
             icon: 'i-lucide-trash',
             color: 'error',
-            onSelect: () => {
-                toast.add({ title: 'Deleted', description: `Deleted agent ${row.original.user.name}` });
-            },
+            onSelect: () => openDeleteModal(row.original),
         },
     ];
 }
@@ -87,13 +115,13 @@ const columns: ColumnDef<Agent>[] = [
     // Select checkbox
     {
         id: 'select',
-        header: ({ table }: { table: Table<Agent> }) =>
+        header: ({ table }) =>
             h(UCheckbox, {
                 modelValue: table.getIsSomePageRowsSelected() ? 'indeterminate' : table.getIsAllPageRowsSelected(),
                 'onUpdate:modelValue': (v: boolean | 'indeterminate') => table.toggleAllPageRowsSelected(!!v),
                 ariaLabel: 'Select all',
             }),
-        cell: ({ row }: { row: Row<Agent> }) =>
+        cell: ({ row }) =>
             h(UCheckbox, {
                 modelValue: row.getIsSelected(),
                 'onUpdate:modelValue': (v: boolean | 'indeterminate') => row.toggleSelected(!!v),
@@ -105,16 +133,16 @@ const columns: ColumnDef<Agent>[] = [
     {
         accessorKey: 'agent_code',
         header: 'Agent Code',
-        accessorFn: (row: Agent) => row.agent_code,
-        cell: ({ row }: { row: Row<Agent> }) => h(UBadge, { color: 'neutral', variant: 'subtle' }, () => row.original.agent_code),
+        accessorFn: (row) => row.agent_code,
+        cell: ({ row }) => h(UBadge, { color: 'neutral', variant: 'subtle' }, () => row.original.agent_code),
     },
 
     // Name + Avatar
     {
         accessorKey: 'name',
         header: 'Name',
-        accessorFn: (row: Agent) => row.user.name,
-        cell: ({ row }: { row: Row<Agent> }) =>
+        accessorFn: (row) => row.user.name,
+        cell: ({ row }) =>
             h('div', { class: 'flex items-center gap-3' }, [
                 h(UAvatar, getAvatarProps(row.original.user)),
                 h('div', undefined, [
@@ -124,10 +152,10 @@ const columns: ColumnDef<Agent>[] = [
             ]),
     },
 
-    // Email (sortable)
+    // Email
     {
         accessorKey: 'email',
-        header: ({ column }: { column: Column<Agent, any> }) => {
+        header: ({ column }) => {
             const isSorted = column.getIsSorted();
             return h(UButton, {
                 color: 'neutral',
@@ -142,39 +170,32 @@ const columns: ColumnDef<Agent>[] = [
                 onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
             });
         },
-        accessorFn: (row: Agent) => row.user.email,
+        accessorFn: (row) => row.user.email,
     },
 
     // Phone
     {
         accessorKey: 'phone',
         header: 'Phone',
-        accessorFn: (row: Agent) => row.user.phone_number,
+        accessorFn: (row) => row.user.phone_number,
     },
 
     // Verified
     {
         accessorKey: 'verified',
         header: 'Verified',
-        accessorFn: (row: Agent) => row.is_verified,
-        filterFn: (row, _columnId, filterValue: boolean) => {
-            return row.original.is_verified === filterValue;
-        },
-        cell: ({ row }: { row: Row<Agent> }) =>
-            h(
-                UBadge,
-                {
-                    color: row.original.is_verified ? 'success' : 'error',
-                    variant: 'subtle',
-                },
-                () => (row.original.is_verified ? 'Verified' : 'Unverified'),
+        accessorFn: (row) => row.is_verified,
+        filterFn: (row, _id, value: boolean) => row.original.is_verified === value,
+        cell: ({ row }) =>
+            h(UBadge, { color: row.original.is_verified ? 'success' : 'error', variant: 'subtle' }, () =>
+                row.original.is_verified ? 'Verified' : 'Unverified',
             ),
     },
 
     // Actions dropdown
     {
         id: 'actions',
-        cell: ({ row }: { row: Row<Agent> }) =>
+        cell: ({ row }) =>
             h(
                 'div',
                 { class: 'text-right' },
@@ -194,6 +215,14 @@ watch(statusFilter, (val) => {
             ? columnFilters.value.filter((f) => f.id !== 'verified')
             : [...columnFilters.value.filter((f) => f.id !== 'verified'), { id: 'verified', value: val === 'verified' }];
 });
+
+watch(
+    () => props.agents,
+    (newAgents) => {
+        agents.value = newAgents;
+    },
+    { immediate: true },
+);
 </script>
 
 <template>
@@ -233,22 +262,36 @@ watch(statusFilter, (val) => {
                 </UButton>
             </div>
 
+            <!-- Agents Table -->
             <UTable
                 @ready="tanstackTable = $event"
                 v-model:column-filters="columnFilters"
                 v-model:column-visibility="columnVisibility"
                 v-model:row-selection="rowSelection"
                 v-model:pagination="pagination"
-                :table-options="{
-                    getFilteredRowModel: getFilteredRowModel(),
-                }"
-                :pagination-options="{
-                    getPaginationRowModel: getPaginationRowModel(),
-                }"
+                :table-options="{ getFilteredRowModel: getFilteredRowModel() }"
+                :pagination-options="{ getPaginationRowModel: getPaginationRowModel() }"
                 :data="agents"
                 :columns="columns"
                 :loading="false"
             />
         </template>
     </UDashboardPanel>
+
+    <!-- Delete Modal -->
+    <UModal title="Delete Agent" v-model:open="modalOpen">
+        <template #body>
+            <p>
+                Are you sure you want to delete
+                <strong>{{ agentToDelete?.user.name }}</strong
+                >?
+            </p>
+            <p class="text-sm text-muted">This action cannot be undone.</p>
+
+            <div class="mt-4 flex justify-end gap-2">
+                <UButton color="neutral" variant="outline" @click="closeModal">Cancel</UButton>
+                <UButton color="error" @click="deleteAgent">Delete</UButton>
+            </div>
+        </template>
+    </UModal>
 </template>
