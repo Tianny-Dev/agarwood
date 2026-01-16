@@ -15,6 +15,7 @@ class Farmer extends Model
 
     protected $fillable = [
         'user_id',
+        'is_verified',
         'farming_background',
         'years_of_farming',
         'familiarity_tree_cultivation',
@@ -42,13 +43,13 @@ class Farmer extends Model
         return $this->hasMany(Agent::class);
     }
 
-    public function contract(): MorphOne 
-    { 
-        return $this->morphOne(Contract::class, 'contractable'); 
+    public function contract(): MorphOne
+    {
+        return $this->morphOne(Contract::class, 'contractable');
     }
-    
-    public function qrCode(): MorphOne 
-    { 
-        return $this->morphOne(QrCode::class, 'qrable'); 
+
+    public function qrCode(): MorphOne
+    {
+        return $this->morphOne(QrCode::class, 'qrable');
     }
 }

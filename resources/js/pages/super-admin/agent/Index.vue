@@ -1,274 +1,133 @@
 <script setup lang="ts">
 import Layout from '@/layouts/AppLayout.vue';
-import type { Agent, AppPageProps, User } from '@/types';
-import { router, usePage } from '@inertiajs/vue3';
-import { ColumnFiltersState, getFilteredRowModel, getPaginationRowModel, Table, type ColumnDef, type Row } from '@tanstack/table-core';
-import { h, ref, resolveComponent, watch } from 'vue';
+import type { Agent } from '@/types';
+import { router } from '@inertiajs/vue3';
+import { type ColumnDef } from '@tanstack/table-core';
+import { computed, h, ref, resolveComponent, watch } from 'vue';
 
 defineOptions({ layout: Layout });
-
-const toast = useToast();
 
 // ---------------- Components ----------------
 const UAvatar = resolveComponent('UAvatar');
 const UButton = resolveComponent('UButton');
 const UBadge = resolveComponent('UBadge');
 const UDropdownMenu = resolveComponent('UDropdownMenu');
-const UCheckbox = resolveComponent('UCheckbox');
+const USelect = resolveComponent('USelect');
+const USlideover = resolveComponent('USlideover');
 
 // ---------------- Props ----------------
-const { props } = usePage<AppPageProps>();
-const agents = ref<Agent[]>(props.agents);
+const props = defineProps<{
+    agents: Agent[];
+    farmers_list: any[];
+    agents_list: any[];
+    filters: any;
+}>();
 
-// ---------------- Table State ----------------
-const columnFilters = ref<ColumnFiltersState>([{ id: 'email', value: '' }]);
-const columnVisibility = ref<Record<string, boolean> | undefined>();
-const rowSelection = ref<Record<string, boolean>>({});
-const pagination = ref({ pageIndex: 0, pageSize: 10 });
-const tanstackTable = ref<Table<Agent> | null>(null);
+// ---------------- Detail State ----------------
+const isDetailsOpen = ref(false);
+const selectedAgent = ref<Agent | null>(null);
+
+function openDetails(agent: Agent) {
+    selectedAgent.value = agent;
+    isDetailsOpen.value = true;
+}
+
+// ---------------- Filter State ----------------
+const statusFilter = ref(props.filters.status || 'all');
+const farmerFilter = ref(props.filters.farmer || 'all');
+const agentNameFilter = ref(props.filters.agent_name || 'all');
+
+const filteredAgentsList = computed(() => {
+    if (farmerFilter.value === 'all') return props.agents_list;
+    return props.agents_list.filter((agent) => agent.farmer_name === farmerFilter.value);
+});
+
+const syncFilters = () => {
+    router.get(
+        '/super-admin/agents',
+        {
+            status: statusFilter.value === 'all' ? undefined : statusFilter.value,
+            farmer: farmerFilter.value === 'all' ? undefined : farmerFilter.value,
+            agent_name: agentNameFilter.value === 'all' ? undefined : agentNameFilter.value,
+        },
+        { preserveState: true, replace: true, preserveScroll: true },
+    );
+};
+
+watch(farmerFilter, () => {
+    agentNameFilter.value = 'all';
+    syncFilters();
+});
+watch([statusFilter, agentNameFilter], () => syncFilters());
 
 // ---------------- Helpers ----------------
 function getInitials(first: string, last?: string) {
-    return `${first[0] ?? ''}${last?.[0] ?? ''}`.toUpperCase();
+    return `${first?.[0] ?? ''}${last?.[0] ?? ''}`.toUpperCase();
 }
 
-function getAvatarProps(user: User) {
-    return {
-        src: user.avatar || undefined,
-        text: !user.avatar ? getInitials(user.first_name, user.last_name) : undefined,
-        size: 'lg',
-        class: 'bg-primary text-white',
-    };
-}
-
-// ---------------- Delete Modal ----------------
-// const agentToDelete = ref<Agent | null>(null);
-// const modalOpen = ref(false);
-
-// function openDeleteModal(agent: Agent) {
-//     agentToDelete.value = agent;
-//     modalOpen.value = true;
-// }
-
-// function closeModal() {
-//     agentToDelete.value = null;
-//     modalOpen.value = false;
-// }
-
-// function deleteAgent() {
-//     if (!agentToDelete.value) return;
-
-//     const agentName = agentToDelete.value.user.name;
-
-//     router.delete(`/super-admin/agents/${agentToDelete.value.id}`, {
-//         preserveScroll: true,
-//         preserveState: false,
-//         onSuccess: () => {
-//             toast.add({
-//                 title: 'Agent deleted',
-//                 description: `Agent ${agentName} was deleted successfully.`,
-//                 icon: 'i-lucide-trash',
-//                 duration: 4000,
-//             });
-//         },
-//         onFinish: () => {
-//             closeModal();
-//         },
-//     });
-// }
-
-// ---------------- Verify Modal ----------------
-const agentToVerify = ref<Agent | null>(null);
-const verifyModalOpen = ref(false);
-
-function openVerifyModal(agent: Agent) {
-    agentToVerify.value = agent;
-    verifyModalOpen.value = true;
-}
-
-function closeVerifyModal() {
-    agentToVerify.value = null;
-    verifyModalOpen.value = false;
-}
-
-function verifyAgent() {
-    if (!agentToVerify.value) return;
-
-    const agent = agentToVerify.value;
-    const agentName = agent.user.name;
-
-    router.patch(
-        `/super-admin/agents/${agent.id}`,
-        { is_verified: true },
-        {
-            preserveScroll: true,
-            preserveState: false,
-            onSuccess: () => {
-                toast.add({
-                    title: 'Agent Updated',
-                    description: `Agent ${agentName} was updated successfully.`,
-                    icon: 'i-lucide-check',
-                    duration: 4000,
-                });
-            },
-            onFinish: () => {
-                closeVerifyModal();
-            },
-        },
-    );
-}
-
-// ---------------- Row Actions ----------------
-function getRowActions(row: Row<Agent>) {
-    return [
-        { type: 'label', label: 'Actions' },
-        {
-            label: 'Verify Agent',
-            icon: 'i-lucide-check',
-            onSelect: () => openVerifyModal(row.original),
-        },
-        {
-            label: 'View Agent',
-            icon: 'i-lucide-eye',
-            onSelect: () => router.visit(`/super-admin/agents/${row.original.id}`),
-        },
-        {
-            label: 'View QR',
-            icon: 'i-lucide-code',
-            onSelect: () =>
-                toast.add({
-                    title: 'QR Code',
-                    description: row.original.qr_code_path || 'No QR code available',
-                }),
-        },
-        // { type: 'separator' },
-        // {
-        //     label: 'Edit Agent',
-        //     icon: 'i-lucide-edit',
-        //     onSelect: () => router.visit(`/super-admin/agents/${row.original.id}/edit`),
-        // },
-        // {
-        //     label: 'Delete Agent',
-        //     icon: 'i-lucide-trash',
-        //     color: 'error',
-        //     onSelect: () => openDeleteModal(row.original),
-        // },
-    ];
-}
-
-// ---------------- Columns ----------------
 const columns: ColumnDef<Agent>[] = [
-    // Select checkbox
-    {
-        id: 'select',
-        header: ({ table }) =>
-            h(UCheckbox, {
-                modelValue: table.getIsSomePageRowsSelected() ? 'indeterminate' : table.getIsAllPageRowsSelected(),
-                'onUpdate:modelValue': (v: boolean | 'indeterminate') => table.toggleAllPageRowsSelected(!!v),
-                ariaLabel: 'Select all',
-            }),
-        cell: ({ row }) =>
-            h(UCheckbox, {
-                modelValue: row.getIsSelected(),
-                'onUpdate:modelValue': (v: boolean | 'indeterminate') => row.toggleSelected(!!v),
-                ariaLabel: 'Select row',
-            }),
-    },
-
-    // Agent code
     {
         accessorKey: 'agent_code',
-        header: 'Agent Code',
-        accessorFn: (row) => row.agent_code,
+        header: 'Code',
         cell: ({ row }) => h(UBadge, { color: 'neutral', variant: 'subtle' }, () => row.original.agent_code),
     },
-
-    // Name + Avatar
     {
         accessorKey: 'name',
-        header: 'Name',
-        accessorFn: (row) => row.user.name,
+        header: 'Agent Name',
         cell: ({ row }) =>
             h('div', { class: 'flex items-center gap-3' }, [
-                h(UAvatar, getAvatarProps(row.original.user)),
+                h(UAvatar, {
+                    src: row.original.user.avatar || undefined,
+                    text: !row.original.user.avatar ? getInitials(row.original.user.first_name, row.original.user.last_name) : undefined,
+                    size: 'lg',
+                    class: 'bg-primary text-white',
+                }),
                 h('div', undefined, [
-                    h('p', { class: 'font-medium text-highlighted' }, row.original.user.name),
-                    h('p', { class: 'text-muted text-sm' }, `@${row.original.user.username}`),
+                    h('p', { class: 'font-medium text-highlighted text-sm' }, row.original.user.name),
+                    h('p', { class: 'text-muted text-xs' }, `@${row.original.user.username}`),
                 ]),
             ]),
     },
-
-    // Email
     {
         accessorKey: 'email',
-        header: ({ column }) => {
-            const isSorted = column.getIsSorted();
-            return h(UButton, {
-                color: 'neutral',
-                variant: 'ghost',
-                label: 'Email',
-                icon: isSorted
-                    ? isSorted === 'asc'
-                        ? 'i-lucide-arrow-up-narrow-wide'
-                        : 'i-lucide-arrow-down-wide-narrow'
-                    : 'i-lucide-arrow-up-down',
-                class: '-mx-2.5',
-                onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
-            });
-        },
-        accessorFn: (row) => row.user.email,
+        header: 'Email',
+        cell: ({ row }) => h('span', { class: 'text-sm text-muted' }, row.original.user.email),
     },
-
-    // Phone
     {
-        accessorKey: 'phone',
-        header: 'Phone',
-        accessorFn: (row) => row.user.phone_number,
+        accessorKey: 'farmer_name',
+        header: 'Associated Farmer',
+        cell: ({ row }) => h('p', { class: 'font-medium text-primary text-sm' }, row.original.farmer_name),
     },
-
-    // Verified
     {
         accessorKey: 'verified',
-        header: 'Verified',
-        accessorFn: (row) => row.is_verified,
-        filterFn: (row, _id, value: boolean) => row.original.is_verified === value,
+        header: 'Status',
         cell: ({ row }) =>
             h(UBadge, { color: row.original.is_verified ? 'success' : 'error', variant: 'subtle' }, () =>
                 row.original.is_verified ? 'Verified' : 'Unverified',
             ),
     },
-
-    // Actions dropdown
     {
         id: 'actions',
         cell: ({ row }) =>
             h(
                 'div',
                 { class: 'text-right' },
-                h(UDropdownMenu, { items: getRowActions(row), content: { align: 'end' } }, () =>
-                    h(UButton, { icon: 'i-lucide-ellipsis-vertical', variant: 'ghost', color: 'neutral' }),
+                h(
+                    UDropdownMenu,
+                    {
+                        items: [{ label: 'View Full Info', icon: 'i-lucide-user', onSelect: () => openDetails(row.original) }],
+                        content: { align: 'end' },
+                    },
+                    () => h(UButton, { icon: 'i-lucide-ellipsis-vertical', variant: 'ghost', color: 'neutral' }),
                 ),
             ),
     },
 ];
 
-// ---------------- Status Filter ----------------
-const statusFilter = ref<'all' | 'verified' | 'unverified'>('all');
-
-watch(statusFilter, (val) => {
-    columnFilters.value =
-        val === 'all'
-            ? columnFilters.value.filter((f) => f.id !== 'verified')
-            : [...columnFilters.value.filter((f) => f.id !== 'verified'), { id: 'verified', value: val === 'verified' }];
-});
-
-watch(
-    () => props.agents,
-    (newAgents) => {
-        agents.value = newAgents;
-    },
-    { immediate: true },
-);
+const dropdownItems = [
+    [{ label: 'New mail', icon: 'i-lucide-send', to: '/inbox' }],
+    [{ label: 'New customer', icon: 'i-lucide-user-plus', to: '/customers' }],
+];
 </script>
 
 <template>
@@ -276,84 +135,114 @@ watch(
         <template #header>
             <UDashboardNavbar title="Agents">
                 <template #leading>
-                    <UDashboardSidebarCollapse as="button" />
+                    <UDashboardSidebarCollapse />
+                </template>
+
+                <template #right>
+                    <UDropdownMenu :items="dropdownItems">
+                        <UButton icon="i-lucide-plus" color="neutral" variant="ghost" />
+                    </UDropdownMenu>
                 </template>
             </UDashboardNavbar>
         </template>
 
         <template #body>
-            <div class="mb-4 flex items-center justify-between gap-2">
-                <!-- Status Filters -->
-                <div class="flex items-center gap-2">
-                    <UButton
-                        v-for="filter in ['all', 'verified', 'unverified'] as const"
-                        :key="filter"
-                        :variant="statusFilter === filter ? 'solid' : 'outline'"
-                        @click="statusFilter = filter"
-                        class="capitalize"
-                    >
-                        {{ filter }}
-                    </UButton>
+            <div class="mb-6 flex flex-wrap items-end gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <span class="ml-1 text-[10px] font-bold text-muted uppercase">Status</span>
+                    <USelect
+                        v-model="statusFilter"
+                        :items="[
+                            { label: 'All', value: 'all' },
+                            { label: 'Verified', value: 'verified' },
+                            { label: 'Unverified', value: 'unverified' },
+                        ]"
+                        class="w-36"
+                    />
                 </div>
-
-                <!-- Add Agent Button -->
+                <div class="flex flex-col gap-1.5">
+                    <span class="ml-1 text-[10px] font-bold text-muted uppercase">Farmer</span>
+                    <USelect v-model="farmerFilter" :items="[{ label: 'All Farmers', value: 'all' }, ...props.farmers_list]" class="w-52" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <span class="ml-1 text-[10px] font-bold text-muted uppercase">Agent Name</span>
+                    <USelect v-model="agentNameFilter" :items="[{ label: 'All Agents', value: 'all' }, ...filteredAgentsList]" class="w-64" />
+                </div>
                 <UButton
-                    icon="i-lucide-plus"
-                    :disabled="agents.length === 0 && statusFilter !== 'all'"
-                    color="primary"
-                    title="Add Agent (A)"
-                    :href="`/super-admin/agents/create`"
-                >
-                    Add Agent
-                </UButton>
+                    color="neutral"
+                    variant="ghost"
+                    icon="i-lucide-filter-x"
+                    @click="
+                        statusFilter = 'all';
+                        farmerFilter = 'all';
+                        agentNameFilter = 'all';
+                    "
+                />
             </div>
 
-            <!-- Agents Table -->
-            <UTable
-                @ready="tanstackTable = $event"
-                v-model:column-filters="columnFilters"
-                v-model:column-visibility="columnVisibility"
-                v-model:row-selection="rowSelection"
-                v-model:pagination="pagination"
-                :table-options="{ getFilteredRowModel: getFilteredRowModel() }"
-                :pagination-options="{ getPaginationRowModel: getPaginationRowModel() }"
-                :data="agents"
-                :columns="columns"
-                :loading="false"
-            />
+            <UTable :data="props.agents" :columns="columns" />
+
+            <USlideover v-model:open="isDetailsOpen" title="Agent Information" description="Full registration details of the agent.">
+                <template #body v-if="selectedAgent">
+                    <div class="space-y-6">
+                        <div class="flex items-center gap-4 border-b pb-6">
+                            <UAvatar
+                                :src="selectedAgent.user.avatar"
+                                :text="getInitials(selectedAgent.user.first_name, selectedAgent.user.last_name)"
+                                size="3xl"
+                                class="bg-primary text-white"
+                            />
+                            <div>
+                                <h3 class="text-xl font-bold">{{ selectedAgent.user.name }}</h3>
+                                <p class="text-sm text-muted">Agent Code: {{ selectedAgent.agent_code }}</p>
+                                <UBadge :color="selectedAgent.is_verified ? 'success' : 'error'" variant="subtle" class="mt-1">
+                                    {{ selectedAgent.is_verified ? 'Verified Account' : 'Pending Verification' }}
+                                </UBadge>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div class="flex flex-col">
+                                <span class="text-[10px] font-semibold text-muted uppercase">Email</span>
+                                <span>{{ selectedAgent.user.email }}</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-[10px] font-semibold text-muted uppercase">Phone</span>
+                                <span>{{ selectedAgent.user.phone_number || 'None' }}</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-[10px] font-semibold text-muted uppercase">Birthday</span>
+                                <span>{{ selectedAgent.user.birthday || 'Not set' }}</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-[10px] font-semibold text-muted uppercase">Gender</span>
+                                <span class="capitalize">{{ selectedAgent.user.gender || 'Not set' }}</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-[10px] font-semibold text-muted uppercase">Civil Status</span>
+                                <span class="capitalize">{{ selectedAgent.user.civil_status || 'Not set' }}</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-[10px] font-semibold text-muted uppercase">Associated Farmer</span>
+                                <span class="font-medium text-primary">{{ selectedAgent.farmer_name }}</span>
+                            </div>
+                        </div>
+
+                        <div class="rounded-lg border border-gray-100 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800">
+                            <span class="text-[10px] font-semibold text-muted uppercase">Residential Address</span>
+                            <p class="mt-1 text-sm leading-relaxed">{{ selectedAgent.user.address || 'No address provided.' }}</p>
+                        </div>
+
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-semibold text-muted uppercase">Farming Background</span>
+                            <p class="text-sm text-muted italic">"{{ selectedAgent.farming_background || 'No background info.' }}"</p>
+                        </div>
+                    </div>
+                </template>
+                <template #footer>
+                    <UButton label="Close" color="neutral" variant="ghost" @click="isDetailsOpen = false" />
+                </template>
+            </USlideover>
         </template>
     </UDashboardPanel>
-
-    <!-- Delete Modal -->
-    <!-- <UModal title="Delete Agent" v-model:open="modalOpen">
-        <template #body>
-            <p>
-                Are you sure you want to delete
-                <strong>{{ agentToDelete?.user.name }}</strong
-                >?
-            </p>
-            <p class="text-sm text-muted">This action cannot be undone.</p>
-
-            <div class="mt-4 flex justify-end gap-2">
-                <UButton color="neutral" variant="outline" @click="closeModal">Cancel</UButton>
-                <UButton color="error" @click="deleteAgent">Delete</UButton>
-            </div>
-        </template>
-    </UModal> -->
-
-    <!-- Verify Modal -->
-    <UModal title="Verify Agent" v-model:open="verifyModalOpen">
-        <template #body>
-            <p>
-                Are you sure you want to verify
-                <strong>{{ agentToVerify?.user.name }}</strong
-                >?
-            </p>
-
-            <div class="mt-4 flex justify-end gap-2">
-                <UButton color="neutral" variant="outline" @click="closeVerifyModal">Cancel</UButton>
-                <UButton color="primary" @click="verifyAgent">Yes Verify</UButton>
-            </div>
-        </template>
-    </UModal>
 </template>

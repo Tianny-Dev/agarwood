@@ -30,6 +30,7 @@ class User extends Authenticatable
     protected $fillable = [
         'role_id',
         'first_name',
+        'phone_number_verified_at',
         'middle_name',
         'last_name',
         'phone_number',
@@ -102,9 +103,9 @@ class User extends Authenticatable
         return $this->hasOne(Partner::class);
     }
 
-    public function qrCode(): MorphOne 
-    { 
-        return $this->morphOne(QrCode::class, 'qrable'); 
+    public function qrCode(): MorphOne
+    {
+        return $this->morphOne(QrCode::class, 'qrable');
     }
 
     public function contractableEntities(): array

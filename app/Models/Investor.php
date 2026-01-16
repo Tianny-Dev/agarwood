@@ -28,18 +28,30 @@ class Investor extends Model implements RequiresContract
         'is_paid' => 'boolean',
     ];
 
+    /**
+     * The User profile belonging to this Investor.
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function contract(): MorphOne 
-    { 
-        return $this->morphOne(Contract::class, 'contractable'); 
+    /**
+     * THE MISSING RELATIONSHIP:
+     * Link the Investor back to the Agent who referred them.
+     */
+    public function agent(): BelongsTo
+    {
+        return $this->belongsTo(Agent::class);
     }
 
-    public function qrCode(): MorphOne 
-    { 
-        return $this->morphOne(QrCode::class, 'qrable'); 
+    public function contract(): MorphOne
+    {
+        return $this->morphOne(Contract::class, 'contractable');
+    }
+
+    public function qrCode(): MorphOne
+    {
+        return $this->morphOne(QrCode::class, 'qrable');
     }
 }
