@@ -1,5 +1,5 @@
 <template>
-    <div id="about" class="scroll-mt-18 bg-[url('images/about.jpg')] bg-cover bg-center bg-no-repeat px-3 py-12 text-center lg:scroll-mt-12">
+    <div id="about" class="about-bg scroll-mt-18 bg-cover bg-center bg-no-repeat px-3 py-12 text-center lg:scroll-mt-12">
         <h1 class="text-3xl font-bold text-white">About Us</h1>
         <p class="pt-5 text-lg/6 text-white">
             We create partnerships between investors and farmers to grow <strong>Agarwood</strong>, one of <br />
@@ -51,3 +51,9 @@
         </div>
     </div>
 </template>
+
+<style scoped>
+.about-bg {
+    background-image: url('/images/about.jpg');
+}
+</style>
