@@ -30,7 +30,7 @@ watch(
 </script>
 
 <template>
-    <div id="Marketing" class="scroll-mt-18 bg-[url('images/mar.jpg')] bg-cover bg-center bg-no-repeat px-5 py-10 lg:scroll-mt-14">
+    <div id="Marketing" class="marketing-bg scroll-mt-18 bg-cover bg-center bg-no-repeat px-5 py-10 lg:scroll-mt-14">
         <div class="mx-auto w-full max-w-[1200px]">
             <div class="flex w-full items-center gap-5 py-2">
                 <h1 class="mx-auto text-3xl font-bold text-white sm:text-4xl sm:whitespace-nowrap">Marketing Potential</h1>
@@ -180,3 +180,9 @@ watch(
         </div>
     </div>
 </template>
+
+<style scoped>
+.marketing-bg {
+    background-image: url('/images/mar.jpg');
+}
+</style>

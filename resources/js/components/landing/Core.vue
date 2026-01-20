@@ -1,6 +1,6 @@
 <template>
     <div class="relative px-5 py-16">
-        <div class="absolute start-0 top-0 h-[45%] w-full bg-[url('images/mv.jpg')] bg-cover bg-center bg-no-repeat xl:h-full xl:w-[55%]"></div>
+        <div class="core-bg absolute start-0 top-0 h-[45%] w-full bg-cover bg-center bg-no-repeat xl:h-full xl:w-[55%]"></div>
         <div class="absolute end-0 bottom-0 h-[55%] w-full bg-dark-brown xl:h-full xl:w-[45%]"></div>
         <div class="relative mx-auto w-full max-w-[1200px]">
             <div class="grid grid-cols-12 md:gap-7">
@@ -54,3 +54,9 @@
         </div>
     </div>
 </template>
+
+<style scoped>
+.core-bg {
+    background-image: url('/images/mv.jpg');
+}
+</style>

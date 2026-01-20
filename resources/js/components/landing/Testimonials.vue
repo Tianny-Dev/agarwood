@@ -55,7 +55,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div id="testimonials" class="scroll-mt-20 bg-[url('images/tes.jpg')] bg-cover bg-center bg-no-repeat pt-10 lg:scroll-mt-16">
+    <div id="testimonials" class="testimonials-bg scroll-mt-20 bg-cover bg-center bg-no-repeat pt-10 lg:scroll-mt-16">
         <div class="relative mx-auto w-full max-w-[1200px]">
             <div class="px-5">
                 <div class="mx-auto mb-10 w-full rounded-4xl bg-white py-2 text-center">
@@ -81,7 +81,7 @@ onMounted(async () => {
                 </div>
 
                 <div class="owl-2 owl-carousel owl-theme pb-12">
-                    <div class="h-full px-4 pt-22">
+                    <div class="h-full px-4 pt-22 pb-2">
                         <div
                             class="relative flex h-full flex-col justify-between rounded-lg bg-white p-6 text-center text-xl text-black shadow-black transition-all duration-500 ease-in-out"
                         >
@@ -101,7 +101,7 @@ onMounted(async () => {
                         </div>
                     </div>
 
-                    <div class="h-full px-4 pt-22">
+                    <div class="h-full px-4 pt-22 pb-2">
                         <div
                             class="relative flex h-full flex-col justify-between rounded-lg bg-white p-6 text-center text-xl text-black shadow-black transition-all duration-500 ease-in-out"
                         >
@@ -121,7 +121,7 @@ onMounted(async () => {
                         </div>
                     </div>
 
-                    <div class="h-full px-4 pt-22">
+                    <div class="h-full px-4 pt-22 pb-2">
                         <div
                             class="relative flex h-full flex-col justify-between rounded-lg bg-white p-6 text-center text-xl text-black shadow-black transition-all duration-500 ease-in-out"
                         >
@@ -145,3 +145,9 @@ onMounted(async () => {
         </div>
     </div>
 </template>
+
+<style scoped>
+.testimonials-bg {
+    background-image: url('/images/tes.jpg');
+}
+</style>
