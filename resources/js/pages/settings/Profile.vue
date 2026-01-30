@@ -99,7 +99,7 @@ function onFileClick() {
                 orientation="horizontal"
                 class="mb-4"
             >
-                <UButton form="settings" label="Save changes" color="neutral" type="submit" class="w-fit lg:ms-auto" />
+                <UButton form="settings" label="Save changes" color="primary" type="submit" class="w-fit lg:ms-auto" />
             </UPageCard>
 
             <UPageCard variant="subtle">
@@ -143,7 +143,7 @@ function onFileClick() {
                 >
                     <div class="flex flex-wrap items-center gap-3">
                         <UAvatar :src="profile.avatar" :alt="profile.first_name" size="lg" />
-                        <UButton label="Choose" color="neutral" @click="onFileClick" />
+                        <UButton label="Choose" color="primary" @click="onFileClick" />
                         <input ref="fileRef" type="file" class="hidden" accept=".jpg, .jpeg, .png, .gif" @change="onFileChange" />
                     </div>
                 </UFormField>
