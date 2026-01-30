@@ -66,6 +66,21 @@ const items = computed<DropdownMenuItem[][]>(() => [
 
     [
         {
+            label: 'Settings',
+            icon: 'i-lucide-settings',
+            children: [
+                {
+                    label: 'Profile',
+                    icon: 'i-lucide-user',
+                    to: '/settings/profile',
+                    exact: true,
+                },
+            ],
+        },
+    ],
+
+    [
+        {
             label: 'Log out',
             icon: 'i-lucide-log-out',
             to: logout(),

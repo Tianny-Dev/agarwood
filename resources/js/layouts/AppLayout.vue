@@ -31,8 +31,8 @@ const sidebarConfig: Record<string, SidebarConfigItem[]> = {
     ],
     agent: [
         { label: 'Dashboard', icon: 'i-lucide-house', to: '/agent/dashboard' },
-        { label: 'Farmers', icon: 'i-lucide-leaf', to: '/agent/farmers' },
-        { label: 'Investors', icon: 'i-lucide-banknote', to: '/agent/investors' },
+        // { label: 'Farmers', icon: 'i-lucide-leaf', to: '/agent/farmers' },
+        // { label: 'Investors', icon: 'i-lucide-banknote', to: '/agent/investors' },
     ],
     farmer: [
         { label: 'Dashboard', icon: 'i-lucide-house', to: '/farmer/dashboard' },
