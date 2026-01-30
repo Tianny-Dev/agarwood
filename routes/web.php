@@ -32,3 +32,4 @@ require __DIR__.'/farmer.php';
 require __DIR__.'/partner.php';
 require __DIR__.'/super-admin.php';
 require __DIR__.'/agent.php';
+require __DIR__.'/settings.php';
