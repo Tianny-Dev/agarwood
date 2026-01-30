@@ -35,4 +35,5 @@ export interface User {
     gender?: 'male' | 'female' | 'other' | null;
     address?: string | null;
     civil_status?: string | null;
+    email_verified_at: string | null
 }
