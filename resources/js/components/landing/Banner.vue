@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { login } from '@/routes';
+import { Link } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 // 1. Define the slide data
 const slides = [
@@ -85,11 +87,12 @@ const currentBgStyle = computed(() => ({
                     </transition>
                 </div>
             </div>
-            <button
+            <Link
+                :href="login()"
                 class="w-full max-w-[300px] rounded-3xl border-3 border-white bg-medium-brown px-5 py-1.5 text-2xl font-bold transition-all hover:brightness-110"
             >
                 Invest Now!
-            </button>
+            </Link>
         </div>
     </div>
 
