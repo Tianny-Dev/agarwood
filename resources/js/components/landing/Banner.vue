@@ -112,7 +112,7 @@ const currentBgStyle = computed(() => ({
                         <div
                             class="col-span-12 grid place-items-center rounded-xl bg-medium-brown p-6 text-center text-xl font-semibold sm:col-span-4"
                         >
-                            Planted & Cared for <br />
+                            Planted & Cared <br />
                             at our Farm
                         </div>
                         <div
